@@ -1,0 +1,817 @@
+[
+  {
+    "mode": "REQUIRED",
+    "name": "id",
+    "type": "STRING"
+  },
+  {
+    "mode": "REQUIRED",
+    "name": "_id",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "modelId",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "author",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "sha",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "lastModified",
+    "type": "TIMESTAMP"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "private",
+    "type": "BOOLEAN"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "disabled",
+    "type": "BOOLEAN"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "gated",
+    "type": "BOOLEAN"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "pipeline_tag",
+    "type": "STRING"
+  },
+  {
+    "mode": "REPEATED",
+    "name": "tags",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "downloads",
+    "type": "INTEGER"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "library_name",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "mask_token",
+    "type": "STRING"
+  },
+  {
+    "fields": [
+      {
+        "mode": "NULLABLE",
+        "name": "text",
+        "type": "STRING"
+      },
+      {
+        "mode": "NULLABLE",
+        "name": "context",
+        "type": "STRING"
+      },
+      {
+        "mode": "NULLABLE",
+        "name": "source_sentence",
+        "type": "STRING"
+      },
+      {
+        "mode": "REPEATED",
+        "name": "sentences",
+        "type": "STRING"
+      },
+      {
+        "mode": "NULLABLE",
+        "name": "example_title",
+        "type": "STRING"
+      }
+    ],
+    "mode": "REPEATED",
+    "name": "widgetData",
+    "type": "RECORD"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "likes",
+    "type": "INTEGER"
+  },
+  {
+    "mode": "REPEATED",
+    "name": "model_index",
+    "type": "RECORD",
+    "fields": [
+      {
+        "mode": "NULLABLE",
+        "name": "name",
+        "type": "STRING"
+      },
+      {
+        "mode": "NULLABLE",
+        "name": "error",
+        "type": "STRING"
+      },
+      {
+        "mode": "REPEATED",
+        "name": "results",
+        "type": "RECORD",
+        "fields": [
+          {
+            "mode": "NULLABLE",
+            "name": "task",
+            "type": "RECORD",
+            "fields": [
+              {
+                "mode": "NULLABLE",
+                "name": "name",
+                "type": "STRING"
+              },
+              {
+                "mode": "NULLABLE",
+                "name": "type",
+                "type": "STRING"
+              }
+            ]
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "dataset",
+            "type": "RECORD",
+            "fields": [
+              {
+                "mode": "NULLABLE",
+                "name": "name",
+                "type": "STRING"
+              },
+              {
+                "mode": "NULLABLE",
+                "name": "type",
+                "type": "STRING"
+              },
+              {
+                "mode": "NULLABLE",
+                "name": "config",
+                "type": "STRING"
+              },
+              {
+                "mode": "NULLABLE",
+                "name": "split",
+                "type": "STRING"
+              },
+              {
+                "mode": "NULLABLE",
+                "name": "args",
+                "type": "STRING"
+              }
+            ]
+          },
+          {
+            "mode": "REPEATED",
+            "name": "metrics",
+            "type": "RECORD",
+            "fields": [
+              {
+                "mode": "NULLABLE",
+                "name": "name",
+                "type": "STRING"
+              },
+              {
+                "mode": "NULLABLE",
+                "name": "type",
+                "type": "STRING"
+              },
+              {
+                "mode": "NULLABLE",
+                "name": "value",
+                "type": "STRING"
+              },
+              {
+                "mode": "NULLABLE",
+                "name": "verified",
+                "type": "BOOLEAN"
+              },
+              {
+                "mode": "NULLABLE",
+                "name": "verifyToken",
+                "type": "STRING"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "mode": "REPEATED",
+    "name": "config",
+    "type": "RECORD",
+    "fields": [
+      {
+        "mode": "REPEATED",
+        "name": "architectures",
+        "type": "STRING"
+      },
+      {
+        "mode": "NULLABLE",
+        "name": "model_type",
+        "type": "STRING"
+      },
+      {
+        "mode": "REPEATED",
+        "name": "task_specific_params",
+        "type": "RECORD",
+        "fields": [
+                    {
+                      "mode": "NULLABLE",
+                      "name": "name",
+                      "type": "STRING"
+                    },
+                    {
+                      "mode": "NULLABLE",
+                      "name": "value",
+                      "type": "STRING"
+                    },
+                    {
+                      "mode": "REPEATED",
+                      "name": "params",
+                      "type": "RECORD",
+                      "fields": [
+                          {
+                            "mode": "NULLABLE",
+                            "name": "name",
+                            "type": "STRING"
+                          },
+                          {
+                            "mode": "NULLABLE",
+                            "name": "value",
+                            "type": "STRING"
+                          }
+                      ]
+                    }
+            ]
+      },
+      {
+        "mode": "REPEATED",
+        "name": "adapter_transformers",
+        "type": "RECORD",
+        "fields": [
+          {
+            "mode": "NULLABLE",
+            "name": "model_name",
+            "type": "STRING"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "model_class",
+            "type": "STRING"
+          }
+        ]
+      },
+      {
+        "mode": "REPEATED",
+        "name": "speechbrain",
+        "type": "RECORD",
+        "fields": [
+          {
+            "mode": "NULLABLE",
+            "name": "interface",
+            "type": "STRING"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "vocoder_interface",
+            "type": "STRING"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "vocoder_model_id",
+            "type": "STRING"
+          }
+        ]
+      },
+      {
+        "mode": "REPEATED",
+        "name": "auto_map",
+        "type": "RECORD",
+        "fields": [
+          {
+            "mode": "NULLABLE",
+            "name": "name",
+            "type": "STRING"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "value",
+            "type": "STRING"
+          }
+        ]
+      },
+      {
+        "mode": "NULLABLE",
+        "name": "diffusers",
+        "type": "RECORD",
+        "fields": [
+          {
+            "mode": "NULLABLE",
+            "name": "class_name",
+            "type": "STRING"
+          }
+        ]
+      },
+      {
+        "mode": "NULLABLE",
+        "name": "sklearn",
+        "type": "RECORD",
+        "fields": [
+          {
+            "mode": "NULLABLE",
+            "name": "filename",
+            "type": "STRING"
+          },
+          {
+            "mode": "REPEATED",
+            "name": "columns",
+            "type": "STRING"
+          },
+          {
+            "mode": "REPEATED",
+            "name": "environment",
+            "type": "STRING"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "example_input",
+            "type": "STRING"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "model",
+            "type": "RECORD",
+             "fields": [
+               {
+                 "mode": "NULLABLE",
+                 "name": "file",
+                 "type": "STRING"
+               }
+             ]
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "task",
+            "type": "STRING"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "use_intelex",
+            "type": "BOOLEAN"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "model_format",
+            "type": "STRING"
+          }
+        ]
+      },
+      {
+        "mode": "NULLABLE",
+        "name": "peft",
+        "type": "RECORD",
+        "fields": [
+          {
+            "mode": "NULLABLE",
+            "name": "base_model_name",
+            "type": "STRING"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "task_type",
+            "type": "STRING"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "mode": "REPEATED",
+    "name": "cardData",
+    "type": "RECORD",
+    "fields": [
+      {
+        "mode": "REPEATED",
+        "name": "language",
+        "type": "STRING"
+      },
+      {
+        "mode": "REPEATED",
+        "name": "tags",
+        "type": "STRING"
+      },
+      {
+        "mode": "REPEATED",
+        "name": "license",
+        "type": "STRING"
+      },
+      {
+        "mode": "NULLABLE",
+        "name": "thumbnail",
+        "type": "STRING"
+      },
+      {
+        "mode": "REPEATED",
+        "name": "pipeline_tag",
+        "type": "STRING"
+      },
+      {
+        "mode": "REPEATED",
+        "name": "datasets",
+        "type": "STRING"
+      },
+      {
+        "mode": "NULLABLE",
+        "name": "model_type",
+        "type": "STRING"
+      },
+      {
+        "mode": "NULLABLE",
+        "name": "library_tag",
+        "type": "STRING"
+      },
+      {
+        "mode": "NULLABLE",
+        "name": "library_version",
+        "type": "STRING"
+      },
+      {
+        "mode": "REPEATED",
+        "name": "params",
+        "type": "RECORD",
+         "fields": [
+             {
+                "mode": "NULLABLE",
+                "name": "name",
+                "type": "STRING"
+             },
+            {
+                "mode": "NULLABLE",
+                "name": "value",
+                "type": "STRING"
+            }
+         ]
+      },
+      {
+        "mode": "REPEATED",
+        "name": "metrics",
+        "type": "RECORD",
+        "fields": [
+          {
+            "mode": "NULLABLE",
+            "name": "value",
+            "type": "STRING"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "loss",
+            "type": "FLOAT"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "perplexity",
+            "type": "FLOAT"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "precision",
+            "type": "FLOAT"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "recall",
+            "type": "FLOAT"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "f1",
+            "type": "FLOAT"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "accuracy",
+            "type": "FLOAT"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "EM",
+            "type": "FLOAT"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "Subset_match",
+            "type": "FLOAT"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "Rouge1",
+            "type": "FLOAT"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "RougeL",
+            "type": "FLOAT"
+          }
+        ]
+      },
+      {
+        "mode": "REPEATED",
+        "name": "widget",
+        "type": "RECORD",
+        "fields": [
+          {
+            "mode": "NULLABLE",
+            "name": "text",
+            "type": "STRING"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "context",
+            "type": "STRING"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "example_title",
+            "type": "STRING"
+          }
+        ]
+      },
+      {
+        "mode": "REPEATED",
+        "name": "model_index",
+        "type": "RECORD",
+        "fields": [
+          {
+            "mode": "NULLABLE",
+            "name": "name",
+            "type": "STRING"
+          },
+          {
+            "mode": "REPEATED",
+            "name": "results",
+            "type": "RECORD",
+            "fields": [
+              {
+                "mode": "NULLABLE",
+                "name": "task",
+                "type": "RECORD",
+                "fields": [
+                  {
+                    "mode": "NULLABLE",
+                    "name": "name",
+                    "type": "STRING"
+                  },
+                  {
+                    "mode": "NULLABLE",
+                    "name": "type",
+                    "type": "STRING"
+                  },
+                  {
+                    "mode": "NULLABLE",
+                    "name": "args",
+                    "type": "STRING"
+                  },
+                  {
+                    "mode": "NULLABLE",
+                    "name": "metrics",
+                    "type": "STRING"
+                  }
+                ]
+              },
+              {
+                "mode": "REPEATED",
+                "name": "values",
+                "type": "INTEGER"
+              },
+              {
+                "mode": "NULLABLE",
+                "name": "dataset",
+                "type": "RECORD",
+                "fields": [
+                  {
+                    "mode": "NULLABLE",
+                    "name": "name",
+                    "type": "STRING"
+                  },
+                  {
+                    "mode": "NULLABLE",
+                    "name": "type",
+                    "type": "STRING"
+                  },
+                  {
+                    "mode": "NULLABLE",
+                    "name": "config",
+                    "type": "STRING"
+                  },
+                  {
+                    "mode": "NULLABLE",
+                    "name": "split",
+                    "type": "STRING"
+                  },
+                  {
+                    "mode": "NULLABLE",
+                    "name": "revision",
+                    "type": "STRING"
+                  },
+                  {
+                    "mode": "NULLABLE",
+                    "name": "args",
+                    "type": "STRING"
+                  },
+                  {
+                    "mode": "NULLABLE",
+                    "name": "url",
+                    "type": "STRING"
+                  }
+                ]
+              },
+              {
+                "mode": "REPEATED",
+                "name": "metrics",
+                "type": "RECORD",
+                "fields": [
+                  {
+                    "mode": "NULLABLE",
+                    "name": "name",
+                    "type": "STRING"
+                  },
+                  {
+                    "mode": "NULLABLE",
+                    "name": "type",
+                    "type": "STRING"
+                  },
+                  {
+                    "mode": "NULLABLE",
+                    "name": "value",
+                    "type": "STRING"
+                  },
+                  {
+                    "mode": "NULLABLE",
+                    "name": "config",
+                    "type": "STRING"
+                  },
+                  {
+                    "mode": "NULLABLE",
+                    "name": "verified",
+                    "type": "BOOLEAN"
+                  },
+                  {
+                    "mode": "NULLABLE",
+                    "name": "verifyToken",
+                    "type": "STRING"
+                  },
+                  {
+                    "mode": "REPEATED",
+                    "name": "args",
+                    "type": "STRING"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "mode": "NULLABLE",
+        "name": "co2_eq_emissions",
+        "type": "RECORD",
+        "fields": [
+          {
+            "mode": "NULLABLE",
+            "name": "emissions",
+            "type": "STRING"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "source",
+            "type": "STRING"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "geographical_location",
+            "type": "STRING"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "hardware_used",
+            "type": "STRING"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "transformersInfo",
+    "type": "RECORD",
+    "fields": [
+      {
+        "mode": "NULLABLE",
+        "name": "auto_model",
+        "type": "STRING"
+      },
+      {
+        "mode": "NULLABLE",
+        "name": "pipeline_tag",
+        "type": "STRING"
+      },
+      {
+        "mode": "NULLABLE",
+        "name": "processor",
+        "type": "STRING"
+      },
+      {
+        "mode": "NULLABLE",
+        "name": "custom_class",
+        "type": "STRING"
+      }
+    ]
+  },
+  {
+    "mode": "REPEATED",
+    "name": "spaces",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "safetensors",
+    "type": "RECORD",
+    "fields": [
+      {
+        "mode": "NULLABLE",
+        "name": "parameters",
+        "type": "RECORD",
+        "fields": [
+          {
+            "mode": "NULLABLE",
+            "name": "F32",
+            "type": "INTEGER"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "F16",
+            "type": "INTEGER"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "I64",
+            "type": "INTEGER"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "I32",
+            "type": "INTEGER"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "I8",
+            "type": "INTEGER"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "BF16",
+            "type": "INTEGER"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "BOOL",
+            "type": "INTEGER"
+          }
+        ]
+      },
+      {
+        "mode": "NULLABLE",
+        "name": "total",
+        "type": "INTEGER"
+      }
+    ]
+  },
+  {
+    "mode": "REPEATED",
+    "name": "siblings",
+    "type": "RECORD",
+    "fields": [
+      {
+        "mode": "NULLABLE",
+        "name": "rfilename",
+        "type": "STRING"
+      }
+    ]
+  }
+]

@@ -1,0 +1,387 @@
+import json
+import copy
+
+SUBFIELDS = set()
+
+def fix_repeateds(data):
+    """
+    The goal of this function is to fix instances where there are two versions of a field in the json,
+    one that is a nullable and the other that is a repeated. We'd like to make them all compatible
+    with the repeated version.
+    :param data:
+    :param field_name:
+    :return:
+    """
+    if type(data) != list:
+        if not data:
+            return []
+        # print("WE'RE DOING A THING")
+        if type(data) == dict:
+            return [f"{data}"]
+        return [data]
+    new_data = []
+    for element in data:
+        if element:
+            # just stick the json in if we have even more records inside because they're not worth dealing with
+            # they're usually extremely model-specific at this point and we no long want to specify, like
+            # specific names of datasets as the keys
+            if type(element) == dict:
+                new_data.append(f"{element}")
+            else:
+                new_data.append(element)
+    return new_data
+
+def fix_records(data, record_label: str, repeated = False):
+    """
+    The goal of this function is to fix instances where there are two versions of a field in the json,
+    one that is a repeated and the other that is a repeated record. We'd like to make them all compatible
+    with the record version.
+    Sometimes the field gets broken and isn't a repeated at all and is just a record. We should fix this too.
+    :param data:
+    :param record_label:
+    :param repeated:
+    :return:
+    """
+    if type(data) == list and len(data) > 0 and type(data[0]) == str:
+        if repeated:
+            return [{record_label: [i]} for i in data]
+        return [{record_label: i} for i in data]
+    return data
+
+def fix_model_index(data, i):
+    """
+    The goal of this function is to fix various bits of weirdness in the model index.
+    :param data:
+    :return:
+    """
+    if not data:
+        return data
+    new_data = []
+    if type(data) == dict:
+        data = [data]
+    for elem in data:
+        new_elem = copy.deepcopy(elem)
+        if "name" in elem and type(elem) == dict:
+            if type(elem["name"]) == dict:
+                if len(elem["name"]) == 1 and not list(elem["name"].values())[0]:
+                    new_elem["name"] = list(elem["name"].keys())[0]
+                else:
+                    new_elem["name"] = f"{elem['name']}"
+        if "results" in elem:
+            if len(elem["results"]) > 0 and type(elem["results"][0]) != dict:
+                new_elem["results"] = {"values": elem["results"]}
+            else:
+                new_vals = []
+                for val in elem["results"]:
+                    new_val = copy.deepcopy(val)
+                    if "dataset" in val:
+                        new_val["datasets"] = fix_result_datasets([val["dataset"]])
+                        del new_val["dataset"]
+                    if "datasets" in val:
+                        new_val["datasets"] = fix_result_datasets(val["datasets"])
+                    if "metrics" in val:
+                        new_val["metrics"] = fix_result_metrics(val["metrics"])
+                    if "metric" in val:
+                        if type(val["metric"]) == dict:
+                            new_val["metrics"] = fix_result_metrics([val["metric"]])
+                            del new_val["metric"]
+                        else:
+                            new_val["metrics"] = fix_result_metrics(val["metric"])
+                    if "tasks" in val:
+                        new_val["task"] = val["tasks"]
+                        if "metrics" in new_val["task"]:
+                            new_val["task"]["metrics"] = f"{new_val['task']['metrics']}"
+                        del new_val["tasks"]
+                    new_vals.append(new_val)
+                new_elem["results"] = new_vals
+        new_data.append(new_elem)
+    return new_data
+
+def fix_result_datasets(datasets):
+    for dataset in datasets:
+        # if we have strings instead of records in our datasets, shortcut this whole thing
+        # and just return a new version with records
+        if type(dataset) == str:
+            return [{"name" : dataset} for dataset in datasets]
+        if "args" in dataset:
+            if type(dataset["args"]) == dict:
+                if len(dataset["args"]) == 1:
+                    dataset["args"] = [i for i in dataset["args"].values()][0]
+                else:
+                    dataset["args"] = f"{dataset['args']}"
+    return datasets
+
+def fix_result_metrics(metrics):
+    for metric in metrics:
+        if "value" in metric:
+            if type(metric["value"]) == list:
+                if len(metric["value"]) == 0:
+                    metric["value"] = None
+                elif len(metric["value"]) == 1:
+                    metric["value"] = metric["value"][0]
+            elif type(metric["value"]) == dict:
+                metric["value"] = f"{metric['value']}"
+        if "args" in metric:
+            if type(metric["args"]) == dict:
+                metric["args"] = [f"{i} : {j}" for i, j in metric["args"].items()]
+            elif type(metric["args"]) == list:
+                for i, arg in enumerate(metric["args"]):
+                    if type(arg) == dict:
+                        # Just convert these very specific arguments that occur very rarely into a string
+                        metric["args"][i] = f"{arg}"
+            else:
+                metric["args"] = [metric["args"]]
+    return metrics
+
+def fix_nullable_record(data, record_label):
+    """
+    The goal of this function is to handle cases where there are two versions of a field, one that is a nullable
+    and the other that is a nullable record.
+    :param data:
+    :param record_label:
+    :return:
+    """
+    if type(data) != list and type(data) != dict:
+        return {record_label: data}
+    return data
+
+def fix_metrics(data):
+    """
+    The metrics field in cardData (rather than in model-index inside cardData) is usually a single value or a list of
+    values. However, sometimes it's a record of values of various types. We have to normalize this to the most
+    complex form, the record.
+    :param data:
+    :return:
+    """
+    # if the field is empty, return a repeated of records
+    if not data:
+        return []
+    # if we have a single value (string/float/int etc.) convert to a repeated record
+    if type(data) != list and type(data) != dict:
+        return [{"value": data}]
+    if type(data) == list:
+        # if there's just a string or int or float sitting in the first element in metrics
+        if type(data[0]) != dict:
+            new_data = [{"value": f"{element}"} for element in data if element]
+        else:
+            new_data = [{"_".join(i.split(" ")): j} for element in data for i, j in element.items()]
+        return new_data
+    return data
+
+def fix_widget_data(data):
+    """
+    Fix the widgetData field or widget field
+    :param data:
+    :return:
+    """
+    # We do all this copy nonsense and enumerate stuff because we don't want to extend the list
+    # while we are iterating through it!
+    if type(data) == dict:
+        data = [data]
+    elif type(data) != list:
+        data = [{"text": data}]
+        return data
+    new_data = copy.deepcopy(data)
+    for i, entry in enumerate(data):
+        if type(entry) != dict:
+            new_data[i] = {"text": entry}
+        elif "text" in entry and entry["text"]:
+            if type(entry["text"]) == list:
+                if len(entry["text"]) == 1:
+                    new_data[i]["text"] = entry["text"][0]
+                else:
+                    if "context" in entry:
+                        print("OH NO")
+                    new_data = [{"text": entry["text"][0]}]
+                    new_data.extend([{"text": i} for i in entry["text"][1:]])
+        if "example_title" in entry:
+            if type(entry["example_title"]) == list:
+                # if for some reason we're stuck with a list
+                # just throw all the titles together in a string
+                # making sure the list actually contains strings first
+                new_data[i]["example_title"] = "; ".join([f"{title}" for title in entry["example_title"]])
+    return new_data
+
+def clean_config(data):
+    """
+    The config field is a mess of user-defined fields. We need to clean this up if we want to include it.
+    :param data:
+    :return:
+    """
+    # If config exists but it's empty, leave it
+    if not data:
+        return data
+    new_data = copy.deepcopy(data)
+    for field in data:
+        # First clean up stray dashes in field names
+        if data[field] and type(data[field]) == dict:
+            for elem in data[field]:
+                if  "-" in elem:
+                    new_data[field][elem.replace("-", "_")] = new_data[field][elem]
+                    del new_data[field][elem]
+        if "-" in field:
+            new_data[field.replace("-", "_")] = new_data[field]
+            del new_data[field]
+        if field == "model_type" and data[field] and type(data[field]) == list:
+            if len(data[field]) == 1:
+                new_data[field] = new_data[field][0]
+            else:
+                print("PANIC")
+        # if field not in ["adapter_transformers", "task_specific_params", "model_type", "architectures", "speechbrain"]:
+        #     print(field)
+        if field == "auto_map" and data[field]:
+            subfields = []
+            for subfield in data[field]:
+                # For some reason there are a few of these with values of lists not strings with
+                # lists that contain only 2 elements and the second element is None
+                if type(data[field][subfield]) == list and len(data[field][subfield]) == 2:
+                    if not data[field][subfield][1]:
+                        new_data[field][subfield] = data[field][subfield][0]
+                updated = {"name": subfield, "value": f"{new_data[field][subfield]}"}
+                subfields.append(updated)
+            new_data[field] = subfields
+        if field == "sklearn" and data[field]:
+            for subfield in data[field]:
+                # This subfield is a record that contains any potential sample input depending on the model
+                # Which is just too many possibilities to enumerate (as the fields are the specific model's fields)
+                # So we convert the json to text
+                if subfield == "example_input":
+                    new_data[field][subfield] = f"{data[field][subfield]}"
+        # Then go through the task specific parameters to deal with their nonsense
+        if "task" in field and "specific" in field and data[field]:
+            # If the task specific parameters aren't a dictionary of parameters
+            # Then just throw their name in a dict and leave it
+            if type(data[field]) != dict:
+                new_data[field] = {"name" : new_data[field]}
+                return new_data
+            # Otherwise we want to find each task specific params and add it to our list of subtasks
+            # Our goal here is to transform the task specific parameters from a nullable record where each
+            # key is a different task type, which is unmaintainable (there's too many task types possible)
+            # to a repeated record with a "name" key whose value is the task type
+            subtasks = []
+            for subtask in data[field]:
+                # Some of the task specific params are whole sets of params and others are single params
+                # The sets of params show up in dicts, while the single params show up as immediate values
+                # linked to the name of the task specific param
+                # if we have the latter, we want to transform it so it is the value of "value" at the same
+                # level as the "name" value
+                if type(new_data[field][subtask.replace("-", "_")]) != dict:
+                    if type(new_data[field][subtask.replace("-", "_")]) != list:
+                        new_params = {"name": subtask.replace("-", "_"),
+                                   "value": new_data[field][subtask.replace("-", "_")]}
+                        subtasks.append(new_params)
+                    else:
+                        # There's theoretically the possibility we could end up with a task specific param that
+                        # is a list instead of a dict or a 'flat' val (e.g. int/float/string/boolean).
+                        # This would mess things up so we want to know if it's happening.
+                        print("OH NO")
+                else:
+                    # If the task specific parameters are a dict, we need to handle these as well
+                    # These are also user-defined fields, so we need to turn their names into values instead of keys
+                    # We do this by creating a repeated "params" field with two elements in it:
+                    # "name" (for the parameter name) and "value" (for its value).
+                    params = []
+                    for param_name in data[field][subtask]:
+                        params.append({"name": param_name,
+                                       "value": f'{new_data[field][subtask.replace("-", "_")][param_name]}'})
+                        del new_data[field][subtask.replace("-", "_")][param_name]
+                    if params:
+                        new_data[field][subtask.replace("-", "_")]["params"] = params
+                    new_data[field][subtask.replace("-", "_")]["name"] = subtask
+                    subtasks.append(new_data[field][subtask.replace("-", "_")])
+                del new_data[field][subtask.replace("-", "_")]
+                # print(new_data[field])
+            new_data[field] = subtasks
+    return new_data
+
+def clean_carddata_base_fields(card_data):
+    """
+    There are way too many possibilities for cardData base fields, and there's a reasonable
+    chance that even if I try to enumerate all of them more will be added (given that there are
+    some entries that appear to just have an entirely different set of base fields than everything else)
+    So instead of dealing with this, we're going to dump everything outside of our "core" base fields
+    into some pre-configured fields
+    :param card_data:
+    :return:
+    """
+    core_fields = ["language", "tags", "license", "thumbnail", "pipeline_tag", "datasets", "metrics",
+                   "widget", "model_index", "co2_eq_emissions", "model_type", "library_tag", "library_version"]
+    new_card_data = copy.deepcopy(card_data)
+    singulars = {"tag": "tags",
+                 "dataset": "datasets"}
+    additional_fields = []
+    for index, field in enumerate(card_data):
+        if type(field) == str and field in singulars:
+            if singulars[field] not in card_data:
+                if type(card_data[field]) == str:
+                    new_card_data[singulars[field]] = [card_data[field]]
+                elif type(card_data[field]) == list:
+                    # Ensure everything in the list is a string
+                    new_card_data[singulars[field]] = [f"{i}" for i in card_data[field]]
+            # We're going to delete the singular version whether or not we copy it into the plural
+            # Currently we don't think there are cases where both exist but even if there were
+            # We don't think it's likely we'd need them both
+            del new_card_data[field]
+        # We check if it's a string because sometimes we may have a repeated, not just a record
+        # These cases are rare but are already handled in the schema
+        elif field not in core_fields and type(field) == str:
+            field_data = {"name": field, "value": f"{card_data[field]}"}
+            additional_fields.append(field_data)
+            del new_card_data[field]
+    if additional_fields:
+        new_card_data["params"] = additional_fields
+    return new_card_data
+
+def fix_data(filename):
+    output = []
+    with open(filename, "r") as f:
+        for i, line in enumerate(f):
+            result = json.loads(line)
+            # print(i, result["id"])
+            newline = copy.deepcopy(result)
+            if "model-index" in newline:
+                newline["model_index"] = fix_model_index(newline["model-index"], i)
+                del newline["model-index"]
+            if "widgetData" in newline and newline["widgetData"]:
+                    newline["widgetData"] = fix_widget_data(newline["widgetData"])
+            if "config" in newline:
+                newline["config"] = clean_config(newline["config"])
+            if "cardData" in result:
+                if "Tags" in result["cardData"]:
+                    if "tags" in result["cardData"]:
+                        if type(result["cardData"]["Tags"]) == list and type(result["cardData"]["tags"]) == list:
+                            newline["cardData"]["tags"].extend(newline["cardData"]["Tags"])
+                            del newline["cardData"]["Tags"]
+                        else:
+                            print("OH NO")
+                            del newline["cardData"]["Tags"]
+                newline["cardData"] = fix_records(newline["cardData"], "tags", True)
+                if "model-index" in result["cardData"]:
+                    newline["cardData"]["model_index"] = fix_model_index(newline["cardData"]["model-index"], i)
+                    del newline["cardData"]["model-index"]
+                elif "model_index" in result["cardData"]:
+                    newline["cardData"]["model_index"] = fix_model_index(newline["cardData"]["model_index"], i)
+                if "widget" in result["cardData"] and result["cardData"]["widget"]:
+                    newline["cardData"]["widget"] = fix_records(newline["cardData"]["widget"], "text")
+                    newline["cardData"]["widget"] = fix_widget_data(newline["cardData"]["widget"])
+                if "co2_eq_emissions" in result["cardData"]:
+                    newline["cardData"]["co2_eq_emissions"] = fix_nullable_record(
+                        newline["cardData"]["co2_eq_emissions"], "emissions")
+                if "metrics" in result["cardData"]:
+                    newline["cardData"]["metrics"] = fix_metrics(newline["cardData"]["metrics"])
+                for field in ["tags", "language", "license", "datasets", "pipeline_tag"]:
+                    if field in result["cardData"]:
+                        newline["cardData"][field] = fix_repeateds(newline["cardData"][field])
+                newline["cardData"] = clean_carddata_base_fields(newline["cardData"])
+            output.append(newline)
+    return output
+
+def write_output(data, filename):
+    out = open(filename, "w")
+    for entry in data:
+        out.write(json.dumps(entry, ensure_ascii=False) + "\n")
+    out.close()
+
+if __name__ == "__main__":
+    out_data = fix_data("data/models.jsonl")
+    write_output(out_data, "data/models_fixed.jsonl")
