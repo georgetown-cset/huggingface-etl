@@ -95,6 +95,33 @@
         "mode": "NULLABLE",
         "name": "example_title",
         "type": "STRING"
+      },
+      {
+        "mode": "NULLABLE",
+        "name": "src",
+        "type": "STRING"
+      },
+      {
+        "mode": "NULLABLE",
+        "name": "candidate_labels",
+        "type": "STRING"
+      },
+      {
+        "mode": "REPEATED",
+        "name": "params",
+        "type": "RECORD",
+        "fields": [
+          {
+            "mode": "NULLABLE",
+            "name": "name",
+            "type": "STRING"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "value",
+            "type": "STRING"
+          }
+        ]
       }
     ],
     "mode": "REPEATED",
@@ -140,12 +167,17 @@
                 "mode": "NULLABLE",
                 "name": "type",
                 "type": "STRING"
+              },
+              {
+                "mode": "NULLABLE",
+                "name": "args",
+                "type": "STRING"
               }
             ]
           },
           {
-            "mode": "NULLABLE",
-            "name": "dataset",
+            "mode": "REPEATED",
+            "name": "datasets",
             "type": "RECORD",
             "fields": [
               {
@@ -172,6 +204,21 @@
                 "mode": "NULLABLE",
                 "name": "args",
                 "type": "STRING"
+              },
+              {
+                "mode": "NULLABLE",
+                "name": "revision",
+                "type": "STRING"
+              },
+              {
+                "mode": "NULLABLE",
+                "name": "url",
+                "type": "STRING"
+              },
+              {
+                "mode": "NULLABLE",
+                "name": "WER",
+                "type": "STRING"
               }
             ]
           },
@@ -197,12 +244,22 @@
               },
               {
                 "mode": "NULLABLE",
+                "name": "config",
+                "type": "STRING"
+              },
+              {
+                "mode": "NULLABLE",
                 "name": "verified",
                 "type": "BOOLEAN"
               },
               {
                 "mode": "NULLABLE",
                 "name": "verifyToken",
+                "type": "STRING"
+              },
+              {
+                "mode": "REPEATED",
+                "name": "args",
                 "type": "STRING"
               }
             ]
@@ -475,7 +532,17 @@
         "fields": [
           {
             "mode": "NULLABLE",
+            "name": "name",
+            "type": "STRING"
+          },
+          {
+            "mode": "NULLABLE",
             "name": "value",
+            "type": "STRING"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "type",
             "type": "STRING"
           },
           {
@@ -510,23 +577,40 @@
           },
           {
             "mode": "NULLABLE",
-            "name": "EM",
+            "name": "em",
             "type": "FLOAT"
           },
           {
             "mode": "NULLABLE",
-            "name": "Subset_match",
+            "name": "subset_match",
             "type": "FLOAT"
           },
           {
             "mode": "NULLABLE",
-            "name": "Rouge1",
+            "name": "rouge1",
             "type": "FLOAT"
           },
           {
             "mode": "NULLABLE",
-            "name": "RougeL",
+            "name": "rougel",
             "type": "FLOAT"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "params",
+            "type": "RECORD",
+            "fields": [
+              {
+                "mode": "NULLABLE",
+                "name": "name",
+                "type": "STRING"
+              },
+              {
+                "mode": "NULLABLE",
+                "name": "value",
+                "type": "STRING"
+              }
+            ]
           }
         ]
       },
@@ -547,8 +631,45 @@
           },
           {
             "mode": "NULLABLE",
+            "name": "source_sentence",
+            "type": "STRING"
+          },
+          {
+            "mode": "REPEATED",
+            "name": "sentences",
+            "type": "STRING"
+          },
+          {
+            "mode": "NULLABLE",
             "name": "example_title",
             "type": "STRING"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "src",
+            "type": "STRING"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "candidate_labels",
+            "type": "STRING"
+          },
+          {
+            "mode": "REPEATED",
+            "name": "params",
+            "type": "RECORD",
+            "fields": [
+              {
+                "mode": "NULLABLE",
+                "name": "name",
+                "type": "STRING"
+              },
+              {
+                "mode": "NULLABLE",
+                "name": "value",
+                "type": "STRING"
+              }
+            ]
           }
         ]
       },
@@ -600,8 +721,8 @@
                 "type": "INTEGER"
               },
               {
-                "mode": "NULLABLE",
-                "name": "dataset",
+                "mode": "REPEATED",
+                "name": "datasets",
                 "type": "RECORD",
                 "fields": [
                   {
@@ -637,6 +758,11 @@
                   {
                     "mode": "NULLABLE",
                     "name": "url",
+                    "type": "STRING"
+                  },
+                  {
+                    "mode": "NULLABLE",
+                    "name": "WER",
                     "type": "STRING"
                   }
                 ]
@@ -711,6 +837,11 @@
             "mode": "NULLABLE",
             "name": "hardware_used",
             "type": "STRING"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "training_type",
+            "type": "STRING"
           }
         ]
       }
@@ -760,6 +891,11 @@
         "fields": [
           {
             "mode": "NULLABLE",
+            "name": "F64",
+            "type": "INTEGER"
+          },
+          {
+            "mode": "NULLABLE",
             "name": "F32",
             "type": "INTEGER"
           },
@@ -786,6 +922,11 @@
           {
             "mode": "NULLABLE",
             "name": "BF16",
+            "type": "INTEGER"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "U8",
             "type": "INTEGER"
           },
           {

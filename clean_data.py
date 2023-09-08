@@ -67,7 +67,10 @@ def fix_model_index(data, i):
                     new_elem["name"] = list(elem["name"].keys())[0]
                 else:
                     new_elem["name"] = f"{elem['name']}"
-        if "results" in elem:
+        if "datasets" in elem and ("results" not in elem or not elem["results"]):
+            new_elem["results"] = {"datasets": fix_result_datasets(elem["datasets"])}
+            del new_elem["datasets"]
+        elif "results" in elem:
             if len(elem["results"]) > 0 and type(elem["results"][0]) != dict:
                 new_elem["results"] = {"values": elem["results"]}
             else:
@@ -112,6 +115,8 @@ def fix_result_datasets(datasets):
     return datasets
 
 def fix_result_metrics(metrics):
+    plurals = {"types": "type",
+               "values": "value"}
     for metric in metrics:
         if "value" in metric:
             if type(metric["value"]) == list:
@@ -131,6 +136,12 @@ def fix_result_metrics(metrics):
                         metric["args"][i] = f"{arg}"
             else:
                 metric["args"] = [metric["args"]]
+        # we only want one of the singular or plural field, in this case the singular
+        for field_name in plurals:
+            if field_name in metric:
+                if plurals[field_name] not in metric:
+                    metric[plurals[field_name]] = ", ".join([f"{elm}" for elm in metric[field_name]])
+                del metric[field_name]
     return metrics
 
 def fix_nullable_record(data, record_label):
@@ -150,9 +161,12 @@ def fix_metrics(data):
     The metrics field in cardData (rather than in model-index inside cardData) is usually a single value or a list of
     values. However, sometimes it's a record of values of various types. We have to normalize this to the most
     complex form, the record.
+    Also sometimes the metric's name is a problem and we have to fix that.
     :param data:
     :return:
     """
+    core_fields = ["name", "value", "type", "loss", "perplexity", "precision", "recall",
+                   "f1", "accuracy", "em", "subset_match", "rouge1", "rougel"]
     # if the field is empty, return a repeated of records
     if not data:
         return []
@@ -164,7 +178,12 @@ def fix_metrics(data):
         if type(data[0]) != dict:
             new_data = [{"value": f"{element}"} for element in data if element]
         else:
-            new_data = [{"_".join(i.split(" ")): j} for element in data for i, j in element.items()]
+            temp_new_data = [{"_".join(i.split(" ")).replace("F-1_score", "f1").lower(): j}
+                        for element in data for i, j in element.items()]
+            new_data = [{i: j} for element in temp_new_data for i, j in element.items() if i in core_fields]
+            other_part = [{"params": {"name": i, "value": j}} for element
+                           in temp_new_data for i, j in element.items() if i not in core_fields]
+            new_data.extend(other_part)
         return new_data
     return data
 
@@ -182,10 +201,12 @@ def fix_widget_data(data):
         data = [{"text": data}]
         return data
     new_data = copy.deepcopy(data)
+    core_field_names = ["text", "context", "src", "example_title", "candidate_labels", "sentences", "source_sentence"]
     for i, entry in enumerate(data):
         if type(entry) != dict:
             new_data[i] = {"text": entry}
-        elif "text" in entry and entry["text"]:
+            break
+        if "text" in entry and entry["text"]:
             if type(entry["text"]) == list:
                 if len(entry["text"]) == 1:
                     new_data[i]["text"] = entry["text"][0]
@@ -194,12 +215,21 @@ def fix_widget_data(data):
                         print("OH NO")
                     new_data = [{"text": entry["text"][0]}]
                     new_data.extend([{"text": i} for i in entry["text"][1:]])
-        if "example_title" in entry:
-            if type(entry["example_title"]) == list:
-                # if for some reason we're stuck with a list
-                # just throw all the titles together in a string
-                # making sure the list actually contains strings first
-                new_data[i]["example_title"] = "; ".join([f"{title}" for title in entry["example_title"]])
+        for field_name in ["example_title", "candidate_labels"]:
+            if field_name in entry:
+                if type(entry[field_name]) == list:
+                    # if for some reason we're stuck with a list
+                    # just throw all the entries together in a string
+                    # making sure the list actually contains strings first
+                    new_data[i][field_name] = ", ".join([f"{elm}" for elm in entry[field_name]])
+        params = []
+        for field in entry:
+            if field not in core_field_names:
+                param = {"name": field, "value": f"{entry[field]}"}
+                params.append(param)
+                del new_data[i][field]
+        if params:
+            new_data[i]["params"] = params
     return new_data
 
 def clean_config(data):
