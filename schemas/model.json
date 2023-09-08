@@ -145,6 +145,11 @@
       },
       {
         "mode": "NULLABLE",
+        "name": "license",
+        "type": "STRING"
+      },
+      {
+        "mode": "NULLABLE",
         "name": "error",
         "type": "STRING"
       },
@@ -260,6 +265,26 @@
               {
                 "mode": "REPEATED",
                 "name": "args",
+                "type": "STRING"
+              },
+              {
+                "mode": "NULLABLE",
+                "name": "lower_is_better",
+                "type": "BOOLEAN"
+              },
+              {
+                "mode": "NULLABLE",
+                "name": "num_train_epochs",
+                "type": "INTEGER"
+              },
+              {
+                "mode": "NULLABLE",
+                "name": "learning_rate",
+                "type": "FLOAT"
+              },
+              {
+                "mode": "NULLABLE",
+                "name": "description",
                 "type": "STRING"
               }
             ]
@@ -684,6 +709,11 @@
             "type": "STRING"
           },
           {
+            "mode": "NULLABLE",
+            "name": "license",
+            "type": "STRING"
+          },
+          {
             "mode": "REPEATED",
             "name": "results",
             "type": "RECORD",
@@ -805,6 +835,26 @@
                   {
                     "mode": "REPEATED",
                     "name": "args",
+                    "type": "STRING"
+                  },
+                  {
+                    "mode": "NULLABLE",
+                    "name": "lower_is_better",
+                    "type": "BOOLEAN"
+                  },
+                  {
+                    "mode": "NULLABLE",
+                    "name": "num_train_epochs",
+                    "type": "INTEGER"
+                  },
+                  {
+                    "mode": "NULLABLE",
+                    "name": "learning_rate",
+                    "type": "FLOAT"
+                  },
+                  {
+                    "mode": "NULLABLE",
+                    "name": "description",
                     "type": "STRING"
                   }
                 ]
