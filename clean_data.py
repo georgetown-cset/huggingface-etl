@@ -8,9 +8,8 @@ def fix_repeateds(data):
     The goal of this function is to fix instances where there are two versions of a field in the json,
     one that is a nullable and the other that is a repeated. We'd like to make them all compatible
     with the repeated version.
-    :param data:
-    :param field_name:
-    :return:
+    :param data: A field that could be either a list or not
+    :return: fixed field as list
     """
     if type(data) != list:
         if not data:
@@ -37,10 +36,10 @@ def fix_records(data, record_label: str, repeated = False):
     one that is a repeated and the other that is a repeated record. We'd like to make them all compatible
     with the record version.
     Sometimes the field gets broken and isn't a repeated at all and is just a record. We should fix this too.
-    :param data:
-    :param record_label:
-    :param repeated:
-    :return:
+    :param data: The field to fix
+    :param record_label: What field name to given the new record
+    :param repeated: If we want the inner data to be a repeated inside of the record
+    :return: The fixed instance as a repeated record
     """
     if type(data) == list and len(data) > 0 and type(data[0]) == str:
         if repeated:
@@ -48,11 +47,11 @@ def fix_records(data, record_label: str, repeated = False):
         return [{record_label: i} for i in data]
     return data
 
-def fix_model_index(data, i):
+def fix_model_index(data):
     """
     The goal of this function is to fix various bits of weirdness in the model index.
-    :param data:
-    :return:
+    :param data: The model index, either solo or from the card_data
+    :return: The fixed model_index
     """
     if not data:
         return data
@@ -101,6 +100,11 @@ def fix_model_index(data, i):
     return new_data
 
 def fix_result_datasets(datasets):
+    """
+    Fix the datasets field inside of results inside of model_index
+    :param datasets: The datasets field, which should be a repeated (list)
+    :return: The fixed datasets field
+    """
     for dataset in datasets:
         # if we have strings instead of records in our datasets, shortcut this whole thing
         # and just return a new version with records
@@ -115,6 +119,11 @@ def fix_result_datasets(datasets):
     return datasets
 
 def fix_result_metrics(metrics):
+    """
+    Fix the metrics field inside of results inside of model_index
+    :param metrics: The metrics field, which should be a repeated (list)
+    :return: The fixed metrics field
+    """
     plurals = {"types": "type",
                "values": "value"}
     for metric in metrics:
@@ -147,10 +156,10 @@ def fix_result_metrics(metrics):
 def fix_nullable_record(data, record_label):
     """
     The goal of this function is to handle cases where there are two versions of a field, one that is a nullable
-    and the other that is a nullable record.
-    :param data:
-    :param record_label:
-    :return:
+    and the other that is a nullable record. We want the nullable record, here.
+    :param data: The data that could be either a nullable or a nullable record.
+    :param record_label: The label for the new record field
+    :return: The fixed nullable record
     """
     if type(data) != list and type(data) != dict:
         return {record_label: data}
@@ -162,8 +171,8 @@ def fix_metrics(data):
     values. However, sometimes it's a record of values of various types. We have to normalize this to the most
     complex form, the record.
     Also sometimes the metric's name is a problem and we have to fix that.
-    :param data:
-    :return:
+    :param data: The metrics field within cardData
+    :return: The fixed metrics field within cardData
     """
     core_fields = ["name", "value", "type", "loss", "perplexity", "precision", "recall",
                    "f1", "accuracy", "em", "subset_match", "rouge1", "rougel"]
@@ -190,8 +199,8 @@ def fix_metrics(data):
 def fix_widget_data(data):
     """
     Fix the widgetData field or widget field
-    :param data:
-    :return:
+    :param data: either the widgetData or widget. Should be a repeated record (list) but isn't always.
+    :return: The fixed widget or widgetData
     """
     # We do all this copy nonsense and enumerate stuff because we don't want to extend the list
     # while we are iterating through it!
@@ -235,8 +244,8 @@ def fix_widget_data(data):
 def clean_config(data):
     """
     The config field is a mess of user-defined fields. We need to clean this up if we want to include it.
-    :param data:
-    :return:
+    :param data: The config repeated record (a list)
+    :return: The fixed config
     """
     # If config exists but it's empty, leave it
     if not data:
@@ -320,7 +329,6 @@ def clean_config(data):
                     new_data[field][subtask.replace("-", "_")]["name"] = subtask
                     subtasks.append(new_data[field][subtask.replace("-", "_")])
                 del new_data[field][subtask.replace("-", "_")]
-                # print(new_data[field])
             new_data[field] = subtasks
     return new_data
 
@@ -331,8 +339,8 @@ def clean_carddata_base_fields(card_data):
     some entries that appear to just have an entirely different set of base fields than everything else)
     So instead of dealing with this, we're going to dump everything outside of our "core" base fields
     into some pre-configured fields
-    :param card_data:
-    :return:
+    :param card_data: The cardData; should be a repeated record (a list)
+    :return: The fixed cardData
     """
     core_fields = ["language", "tags", "license", "thumbnail", "pipeline_tag", "datasets", "metrics",
                    "widget", "model_index", "co2_eq_emissions", "model_type", "library_tag", "library_version"]
@@ -363,6 +371,11 @@ def clean_carddata_base_fields(card_data):
     return new_card_data
 
 def fix_data(filename):
+    """
+    The primary function for cleaning all the data
+    :param filename: The filename containing the data to clean
+    :return: The output data
+    """
     output = []
     with open(filename, "r") as f:
         for i, line in enumerate(f):
@@ -370,7 +383,7 @@ def fix_data(filename):
             # print(i, result["id"])
             newline = copy.deepcopy(result)
             if "model-index" in newline:
-                newline["model_index"] = fix_model_index(newline["model-index"], i)
+                newline["model_index"] = fix_model_index(newline["model-index"])
                 del newline["model-index"]
             if "widgetData" in newline and newline["widgetData"]:
                     newline["widgetData"] = fix_widget_data(newline["widgetData"])
@@ -387,10 +400,10 @@ def fix_data(filename):
                             del newline["cardData"]["Tags"]
                 newline["cardData"] = fix_records(newline["cardData"], "tags", True)
                 if "model-index" in result["cardData"]:
-                    newline["cardData"]["model_index"] = fix_model_index(newline["cardData"]["model-index"], i)
+                    newline["cardData"]["model_index"] = fix_model_index(newline["cardData"]["model-index"])
                     del newline["cardData"]["model-index"]
                 elif "model_index" in result["cardData"]:
-                    newline["cardData"]["model_index"] = fix_model_index(newline["cardData"]["model_index"], i)
+                    newline["cardData"]["model_index"] = fix_model_index(newline["cardData"]["model_index"])
                 if "widget" in result["cardData"] and result["cardData"]["widget"]:
                     newline["cardData"]["widget"] = fix_records(newline["cardData"]["widget"], "text")
                     newline["cardData"]["widget"] = fix_widget_data(newline["cardData"]["widget"])
@@ -407,6 +420,12 @@ def fix_data(filename):
     return output
 
 def write_output(data, filename):
+    """
+    Write the output json to a file
+    :param data: The output data to write
+    :param filename: The filename to write to
+    :return: None
+    """
     out = open(filename, "w")
     for entry in data:
         out.write(json.dumps(entry, ensure_ascii=False) + "\n")
