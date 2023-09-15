@@ -190,7 +190,7 @@ def fix_metrics(data):
             temp_new_data = [{"_".join(i.split(" ")).replace("F-1_score", "f1").lower(): j}
                         for element in data for i, j in element.items()]
             new_data = [{i: j} for element in temp_new_data for i, j in element.items() if i in core_fields]
-            other_part = [{"params": {"name": i, "value": j}} for element
+            other_part = [{"name": i, "value": j} for element
                            in temp_new_data for i, j in element.items() if i not in core_fields]
             new_data.extend(other_part)
         return new_data
@@ -207,23 +207,19 @@ def fix_widget_data(data):
     if type(data) == dict:
         data = [data]
     elif type(data) != list:
-        data = [{"text": data}]
+        data = [{"text": [data]}]
         return data
     new_data = copy.deepcopy(data)
     core_field_names = ["text", "context", "src", "example_title", "candidate_labels", "sentences", "source_sentence"]
     for i, entry in enumerate(data):
         if type(entry) != dict:
-            new_data[i] = {"text": entry}
+            new_data[i] = {"text": [entry]}
             break
-        if "text" in entry and entry["text"]:
-            if type(entry["text"]) == list:
-                if len(entry["text"]) == 1:
-                    new_data[i]["text"] = entry["text"][0]
-                else:
-                    if "context" in entry:
-                        print("OH NO")
-                    new_data = [{"text": entry["text"][0]}]
-                    new_data.extend([{"text": i} for i in entry["text"][1:]])
+        if "text" in entry:
+            if entry["text"] and type(entry["text"]) != list:
+                new_data[i]["text"] = [entry["text"]]
+            if not entry["text"]:
+                new_data[i]["text"] = []
         for field_name in ["example_title", "candidate_labels"]:
             if field_name in entry:
                 if type(entry[field_name]) == list:
@@ -252,22 +248,23 @@ def clean_config(data):
         return data
     new_data = copy.deepcopy(data)
     for field in data:
-        # First clean up stray dashes in field names
-        if data[field] and type(data[field]) == dict:
-            for elem in data[field]:
-                if  "-" in elem:
-                    new_data[field][elem.replace("-", "_")] = new_data[field][elem]
-                    del new_data[field][elem]
-        if "-" in field:
-            new_data[field.replace("-", "_")] = new_data[field]
-            del new_data[field]
+        # # First clean up stray dashes in field names
+        # if data[field] and type(data[field]) == dict:
+        #     for elem in data[field]:
+        #         if  "-" in elem:
+        #             if field != "task_specific_params":
+        #                 print(field)
+        #             new_data[field][elem.replace("-", "_")] = new_data[field][elem]
+        #             del new_data[field][elem]
+        # if "-" in field:
+        #     new_data[field.replace("-", "_")] = new_data[field]
+        #     del new_data[field]
         if field == "model_type" and data[field] and type(data[field]) == list:
             if len(data[field]) == 1:
                 new_data[field] = new_data[field][0]
             else:
-                print("PANIC")
-        # if field not in ["adapter_transformers", "task_specific_params", "model_type", "architectures", "speechbrain"]:
-        #     print(field)
+                # this has never happened but just in case
+                new_data[field] = ", ".join([f"{i}" for i in new_data[field]])
         if field == "auto_map" and data[field]:
             subfields = []
             for subfield in data[field]:
@@ -304,16 +301,19 @@ def clean_config(data):
                 # linked to the name of the task specific param
                 # if we have the latter, we want to transform it so it is the value of "value" at the same
                 # level as the "name" value
-                if type(new_data[field][subtask.replace("-", "_")]) != dict:
-                    if type(new_data[field][subtask.replace("-", "_")]) != list:
+                if type(new_data[field][subtask]) != dict:
+                    if type(new_data[field][subtask]) != list:
                         new_params = {"name": subtask.replace("-", "_"),
-                                   "value": new_data[field][subtask.replace("-", "_")]}
+                                   "value": new_data[field][subtask]}
                         subtasks.append(new_params)
                     else:
                         # There's theoretically the possibility we could end up with a task specific param that
                         # is a list instead of a dict or a 'flat' val (e.g. int/float/string/boolean).
                         # This would mess things up so we want to know if it's happening.
                         print("OH NO")
+                        new_params = {"name": subtask.replace("-", "_"),
+                                      "value": ", ".join([f"{i}" for i in new_data[field][subtask]])}
+                        subtasks.append(new_params)
                 else:
                     # If the task specific parameters are a dict, we need to handle these as well
                     # These are also user-defined fields, so we need to turn their names into values instead of keys
@@ -322,13 +322,13 @@ def clean_config(data):
                     params = []
                     for param_name in data[field][subtask]:
                         params.append({"name": param_name,
-                                       "value": f'{new_data[field][subtask.replace("-", "_")][param_name]}'})
-                        del new_data[field][subtask.replace("-", "_")][param_name]
+                                       "value": f'{new_data[field][subtask][param_name]}'})
+                        del new_data[field][subtask][param_name]
                     if params:
-                        new_data[field][subtask.replace("-", "_")]["params"] = params
-                    new_data[field][subtask.replace("-", "_")]["name"] = subtask
-                    subtasks.append(new_data[field][subtask.replace("-", "_")])
-                del new_data[field][subtask.replace("-", "_")]
+                        new_data[field][subtask]["params"] = params
+                    new_data[field][subtask]["name"] = subtask.replace("-", "_")
+                    subtasks.append(new_data[field][subtask])
+                del new_data[field][subtask]
             new_data[field] = subtasks
     return new_data
 
