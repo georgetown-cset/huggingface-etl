@@ -3,6 +3,9 @@ import copy
 
 SUBFIELDS = set()
 
+def stringify(element):
+    return json.dumps(element) if type(element) == dict else f"{element}"
+
 def fix_repeateds(data):
     """
     The goal of this function is to fix instances where there are two versions of a field in the json,
@@ -14,9 +17,8 @@ def fix_repeateds(data):
     if type(data) != list:
         if not data:
             return []
-        # print("WE'RE DOING A THING")
         if type(data) == dict:
-            return [f"{data}"]
+            return [stringify(data)]
         return [data]
     new_data = []
     for element in data:
@@ -25,7 +27,7 @@ def fix_repeateds(data):
             # they're usually extremely model-specific at this point and we no long want to specify, like
             # specific names of datasets as the keys
             if type(element) == dict:
-                new_data.append(f"{element}")
+                new_data.append(stringify(element))
             else:
                 new_data.append(element)
     return new_data
@@ -35,7 +37,6 @@ def fix_records(data, record_label: str, repeated = False):
     The goal of this function is to fix instances where there are two versions of a field in the json,
     one that is a repeated and the other that is a repeated record. We'd like to make them all compatible
     with the record version.
-    Sometimes the field gets broken and isn't a repeated at all and is just a record. We should fix this too.
     :param data: The field to fix
     :param record_label: What field name to given the new record
     :param repeated: If we want the inner data to be a repeated inside of the record
@@ -62,11 +63,14 @@ def fix_model_index(data):
         new_elem = copy.deepcopy(elem)
         if "name" in elem and type(elem) == dict:
             if type(elem["name"]) == dict:
+                # here we're testing for a case where the there's technically a dict under name
+                # but the dict looks like {"some field": null} (which happens surprisingly
+                # often). We just want to replace this with {"name": "some field"}
                 if len(elem["name"]) == 1 and not list(elem["name"].values())[0]:
                     new_elem["name"] = list(elem["name"].keys())[0]
                 else:
-                    new_elem["name"] = f"{elem['name']}"
-        if "datasets" in elem and ("results" not in elem or not elem["results"]):
+                    new_elem["name"] = stringify(elem['name'])
+        if "datasets" in elem and not elem.get("results"):
             new_elem["results"] = {"datasets": fix_result_datasets(elem["datasets"])}
             del new_elem["datasets"]
         elif "results" in elem:
@@ -92,7 +96,7 @@ def fix_model_index(data):
                     if "tasks" in val:
                         new_val["task"] = val["tasks"]
                         if "metrics" in new_val["task"]:
-                            new_val["task"]["metrics"] = f"{new_val['task']['metrics']}"
+                            new_val["task"]["metrics"] = stringify(new_val['task']['metrics'])
                         del new_val["tasks"]
                     new_vals.append(new_val)
                 new_elem["results"] = new_vals
@@ -115,7 +119,7 @@ def fix_result_datasets(datasets):
                 if len(dataset["args"]) == 1:
                     dataset["args"] = [i for i in dataset["args"].values()][0]
                 else:
-                    dataset["args"] = f"{dataset['args']}"
+                    dataset["args"] = stringify(dataset['args'])
     return datasets
 
 def fix_result_metrics(metrics):
@@ -134,22 +138,22 @@ def fix_result_metrics(metrics):
                 elif len(metric["value"]) == 1:
                     metric["value"] = metric["value"][0]
             elif type(metric["value"]) == dict:
-                metric["value"] = f"{metric['value']}"
+                metric["value"] = stringify(metric['value'])
         if "args" in metric:
             if type(metric["args"]) == dict:
-                metric["args"] = [f"{i} : {j}" for i, j in metric["args"].items()]
+                metric["args"] = [json.dumps(i) if type(i) == dict else f"{i} : {j}" for i, j in metric["args"].items()]
             elif type(metric["args"]) == list:
                 for i, arg in enumerate(metric["args"]):
                     if type(arg) == dict:
                         # Just convert these very specific arguments that occur very rarely into a string
-                        metric["args"][i] = f"{arg}"
+                        metric["args"][i] = stringify(arg)
             else:
                 metric["args"] = [metric["args"]]
         # we only want one of the singular or plural field, in this case the singular
         for field_name in plurals:
             if field_name in metric:
                 if plurals[field_name] not in metric:
-                    metric[plurals[field_name]] = ", ".join([f"{elm}" for elm in metric[field_name]])
+                    metric[plurals[field_name]] = ", ".join([stringify(elm) for elm in metric[field_name]])
                 del metric[field_name]
     return metrics
 
@@ -185,9 +189,9 @@ def fix_metrics(data):
     if type(data) == list:
         # if there's just a string or int or float sitting in the first element in metrics
         if type(data[0]) != dict:
-            new_data = [{"value": f"{element}"} for element in data if element]
+            new_data = [{"value": stringify(element)} for element in data if element]
         else:
-            temp_new_data = [{"_".join(i.split(" ")).replace("F-1_score", "f1").lower(): j}
+            temp_new_data = [{"_".join(i.split()).replace("F-1_score", "f1").lower(): j}
                         for element in data for i, j in element.items()]
             new_data = [{i: j} for element in temp_new_data for i, j in element.items() if i in core_fields]
             other_part = [{"name": i, "value": j} for element
@@ -226,11 +230,11 @@ def fix_widget_data(data):
                     # if for some reason we're stuck with a list
                     # just throw all the entries together in a string
                     # making sure the list actually contains strings first
-                    new_data[i][field_name] = ", ".join([f"{elm}" for elm in entry[field_name]])
+                    new_data[i][field_name] = ", ".join([stringify(elm) for elm in entry[field_name]])
         params = []
         for field in entry:
             if field not in core_field_names:
-                param = {"name": field, "value": f"{entry[field]}"}
+                param = {"name": field, "value": stringify(entry[field])}
                 params.append(param)
                 del new_data[i][field]
         if params:
@@ -248,23 +252,12 @@ def clean_config(data):
         return data
     new_data = copy.deepcopy(data)
     for field in data:
-        # # First clean up stray dashes in field names
-        # if data[field] and type(data[field]) == dict:
-        #     for elem in data[field]:
-        #         if  "-" in elem:
-        #             if field != "task_specific_params":
-        #                 print(field)
-        #             new_data[field][elem.replace("-", "_")] = new_data[field][elem]
-        #             del new_data[field][elem]
-        # if "-" in field:
-        #     new_data[field.replace("-", "_")] = new_data[field]
-        #     del new_data[field]
         if field == "model_type" and data[field] and type(data[field]) == list:
             if len(data[field]) == 1:
                 new_data[field] = new_data[field][0]
             else:
                 # this has never happened but just in case
-                new_data[field] = ", ".join([f"{i}" for i in new_data[field]])
+                new_data[field] = ", ".join([stringify(i) for i in new_data[field]])
         if field == "auto_map" and data[field]:
             subfields = []
             for subfield in data[field]:
@@ -273,7 +266,7 @@ def clean_config(data):
                 if type(data[field][subfield]) == list and len(data[field][subfield]) == 2:
                     if not data[field][subfield][1]:
                         new_data[field][subfield] = data[field][subfield][0]
-                updated = {"name": subfield, "value": f"{new_data[field][subfield]}"}
+                updated = {"name": subfield, "value": stringify(new_data[field][subfield])}
                 subfields.append(updated)
             new_data[field] = subfields
         if field == "sklearn" and data[field]:
@@ -282,7 +275,7 @@ def clean_config(data):
                 # Which is just too many possibilities to enumerate (as the fields are the specific model's fields)
                 # So we convert the json to text
                 if subfield == "example_input":
-                    new_data[field][subfield] = f"{data[field][subfield]}"
+                    new_data[field][subfield] = stringify(data[field][subfield])
         # Then go through the task specific parameters to deal with their nonsense
         if "task" in field and "specific" in field and data[field]:
             # If the task specific parameters aren't a dictionary of parameters
@@ -310,9 +303,8 @@ def clean_config(data):
                         # There's theoretically the possibility we could end up with a task specific param that
                         # is a list instead of a dict or a 'flat' val (e.g. int/float/string/boolean).
                         # This would mess things up so we want to know if it's happening.
-                        print("OH NO")
                         new_params = {"name": subtask.replace("-", "_"),
-                                      "value": ", ".join([f"{i}" for i in new_data[field][subtask]])}
+                                      "value": ", ".join([stringify(i) for i in new_data[field][subtask]])}
                         subtasks.append(new_params)
                 else:
                     # If the task specific parameters are a dict, we need to handle these as well
@@ -355,7 +347,7 @@ def clean_carddata_base_fields(card_data):
                     new_card_data[singulars[field]] = [card_data[field]]
                 elif type(card_data[field]) == list:
                     # Ensure everything in the list is a string
-                    new_card_data[singulars[field]] = [f"{i}" for i in card_data[field]]
+                    new_card_data[singulars[field]] = [stringify(i) for i in card_data[field]]
             # We're going to delete the singular version whether or not we copy it into the plural
             # Currently we don't think there are cases where both exist but even if there were
             # We don't think it's likely we'd need them both
@@ -363,7 +355,7 @@ def clean_carddata_base_fields(card_data):
         # We check if it's a string because sometimes we may have a repeated, not just a record
         # These cases are rare but are already handled in the schema
         elif field not in core_fields and type(field) == str:
-            field_data = {"name": field, "value": f"{card_data[field]}"}
+            field_data = {"name": field, "value": stringify(card_data[field])}
             additional_fields.append(field_data)
             del new_card_data[field]
     if additional_fields:
@@ -396,7 +388,6 @@ def fix_data(filename):
                             newline["cardData"]["tags"].extend(newline["cardData"]["Tags"])
                             del newline["cardData"]["Tags"]
                         else:
-                            print("OH NO")
                             del newline["cardData"]["Tags"]
                 newline["cardData"] = fix_records(newline["cardData"], "tags", True)
                 if "model-index" in result["cardData"]:

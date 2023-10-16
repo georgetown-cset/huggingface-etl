@@ -7,11 +7,11 @@ class TestCleanData(unittest.TestCase):
         none_test = None
         self.assertEqual([], clean_data.fix_repeateds(none_test))
         dict_test = {"a": 1}
-        self.assertEqual(["{'a': 1}"], clean_data.fix_repeateds(dict_test))
+        self.assertEqual(['{"a": 1}'], clean_data.fix_repeateds(dict_test))
         nullable_test = "autotrain"
         self.assertEqual(["autotrain"], clean_data.fix_repeateds(nullable_test))
         nested_test = ["common_voice", {"FOSD": "https://data.mendeley.com/datasets/k9sxg2twv4/4"}]
-        self.assertEqual(["common_voice", "{'FOSD': 'https://data.mendeley.com/datasets/k9sxg2twv4/4'}"],
+        self.assertEqual(["common_voice", '{"FOSD": "https://data.mendeley.com/datasets/k9sxg2twv4/4"}'],
                          clean_data.fix_repeateds(nested_test))
         correct_test = ["national library of spain", "spanish", "bne", "capitel", "ner"]
         self.assertEqual(correct_test, clean_data.fix_repeateds(correct_test))
@@ -36,7 +36,7 @@ class TestCleanData(unittest.TestCase):
         name_dict_test = [{"name": {"Wav2Vec2-XLSR-53 Kyrgyz by adilism": None}}]
         self.assertEqual([{"name": "Wav2Vec2-XLSR-53 Kyrgyz by adilism"}], clean_data.fix_model_index(name_dict_test))
         names_dict_test = [{"name": {"Wav2Vec2-XLSR-53 Kyrgyz by adilism": "something?"}}]
-        self.assertEqual([{"name": "{'Wav2Vec2-XLSR-53 Kyrgyz by adilism': 'something?'}"}],
+        self.assertEqual([{"name": '{"Wav2Vec2-XLSR-53 Kyrgyz by adilism": "something?"}'}],
                          clean_data.fix_model_index(names_dict_test))
         datasets_fix_test = [{"datasets": {"name": "food-101", "type": "food101", "args": "default"}}]
         self.assertNotIn("datasets", clean_data.fix_model_index(datasets_fix_test)[0])
@@ -75,7 +75,7 @@ class TestCleanData(unittest.TestCase):
         args_multiple_test = [{"name": "LibriSpeech (other)", "type": "librispeech_asr", "config": "other",
                           "split": "test", "args": {"language": "en", "other": "something"}}]
         self.assertEqual([{"name": "LibriSpeech (other)", "type": "librispeech_asr", "config": "other",
-                           "split": "test", "args": "{'language': 'en', 'other': 'something'}"}],
+                           "split": "test", "args": '{"language": "en", "other": "something"}'}],
                          clean_data.fix_result_datasets(args_multiple_test))
         correct_test = [{"name": "custom", "type": "custom", "args": "ben"}]
         self.assertEqual(correct_test, clean_data.fix_result_datasets(correct_test))
@@ -85,7 +85,7 @@ class TestCleanData(unittest.TestCase):
         self.assertEqual([{"name": "Test CER", "type": "cer", "value": "18.55%", "verified": False}],
                          clean_data.fix_result_metrics(value_list_test))
         value_dict_test = [{"name": "F1", "type": "f1", "value": {"f1": 0.8276613385259164}, "verified": False}]
-        self.assertEqual([{"name": "F1", "type": "f1", "value": "{'f1': 0.8276613385259164}", "verified": False}],
+        self.assertEqual([{"name": "F1", "type": "f1", "value": '{"f1": 0.8276613385259164}', "verified": False}],
                          clean_data.fix_result_metrics(value_dict_test))
         args_dict_test = [{"type": "wer", "value": 59.1, "name": "Test WER",
                            "args": {"learning_rate": 0.0003, "train_batch_size": 16, "lr_scheduler_warmup_steps": 200,
@@ -103,9 +103,9 @@ class TestCleanData(unittest.TestCase):
         self.assertEqual([{"type": "rouge1", "value": 0.652, "name": "Avg. Test Rouge1"},
                           {"type": "rougeL", "value": 0.632, "name": "Avg. Test RougeL"},
                           {"type": "bertscore", "value": 0.665, "name": "Avg. Test BERTScore",
-                           "args": ["{'model_type': 'dbmdz/bert-base-italian-xxl-uncased'}", "{'lang': 'it'}",
-                                    "{'num_layers': 10}", "{'rescale_with_baseline': True}",
-                                    "{'baseline_path': 'bertscore_baseline_ita.tsv'}"]}],
+                           "args": ['{"model_type": "dbmdz/bert-base-italian-xxl-uncased"}', '{"lang": "it"}',
+                                    '{"num_layers": 10}', '{"rescale_with_baseline": true}',
+                                    '{"baseline_path": "bertscore_baseline_ita.tsv"}']}],
                          clean_data.fix_result_metrics(args_list_test))
         plurals_test = [{"name": "Test WER and CER on text and puctuation prediction", "types": ["wer", "cer"],
                        "values": ["19.47%", "6.66%"]}, {"name": "Test WER and CER on text without punctuation",
@@ -216,9 +216,9 @@ class TestCleanData(unittest.TestCase):
                                               [2.8, 3.8, 2.6]}}}
         self.assertEqual({"sklearn": {"columns": ["sepal length (cm)", "sepal width (cm)", "petal length (cm)",
                                                       "petal width (cm)"], "environment": ["scikit-learn=1.0.2"],
-                              "example_input": "{'petal length (cm)': [4.7, 1.7, 6.9], 'petal width (cm)': [1.2, 0.3,"
-                                               " 2.3], 'sepal length (cm)': [6.1, 5.7, 7.7], 'sepal width (cm)': [2.8,"
-                                               " 3.8, 2.6]}"}}, clean_data.clean_config(example_input_test))
+                              "example_input": '{"petal length (cm)": [4.7, 1.7, 6.9], "petal width (cm)": [1.2, 0.3,'
+                                               ' 2.3], "sepal length (cm)": [6.1, 5.7, 7.7], "sepal width (cm)": [2.8,'
+                                               ' 3.8, 2.6]}'}}, clean_data.clean_config(example_input_test))
         name_val_test = {"architectures": ["BERT_model_multidata"], "model_type": "bert", "task_specific_params":
             {"bert_hidden_size": 768, "biaffine": False, "boundaries_labels": None, "crf": True, "md_model": True,
              "md_number": 4, "predict_boundaries": False, "predict_masked": False, "type_crf_constraints": "BIOES"}}
@@ -248,7 +248,7 @@ class TestCleanData(unittest.TestCase):
                          "inference": {"parameters": {"aggregation_strategy": "first"}}}
         self.assertEqual({"language": "no", "license": "cc-by-4.0", "tags": ["norwegian", "bert", "ner"],"thumbnail":
             "nblogo_3.png", "pipeline_tag": "token-classification", "datasets": ["norne"], "params":
-            [{"name": "inference", "value": "{'parameters': {'aggregation_strategy': 'first'}}"}]},
+            [{"name": "inference", "value": '{"parameters": {"aggregation_strategy": "first"}}'}]},
                          clean_data.clean_carddata_base_fields(non_core_test))
 
 if __name__ == '__main__':

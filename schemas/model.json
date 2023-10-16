@@ -2,12 +2,14 @@
   {
     "mode": "REQUIRED",
     "name": "id",
-    "type": "STRING"
+    "type": "STRING",
+    "description": "The text-based model id/name, also used to find the model on the website or in the API."
   },
   {
     "mode": "REQUIRED",
     "name": "_id",
-    "type": "STRING"
+    "type": "STRING",
+    "description": "The model unique id primary key."
   },
   {
     "mode": "NULLABLE",
