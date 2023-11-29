@@ -1,0 +1,80 @@
+[
+  {
+    "mode": "REQUIRED",
+    "name": "id",
+    "type": "STRING",
+    "description": "The text-based model id/name, also used to find the model on the website or in the API."
+  },
+  {
+    "mode": "REQUIRED",
+    "name": "_id",
+    "type": "STRING",
+    "description": "The model unique id primary key."
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "total_params",
+    "type": "FLOAT",
+    "description": "The total parameter count of the model."
+  },
+  {
+    "mode": "REPEATED",
+    "name": "tensor_types",
+    "type": "STRING",
+    "description": "Which tensor types the model provides parameter counts for."
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "F64_params",
+    "type": "FLOAT",
+    "description": "The parameter count for the F64 tensor type."
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "F32_params",
+    "type": "FLOAT",
+    "description": "The parameter count for the F32 tensor type."
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "F16_params",
+    "type": "FLOAT",
+    "description": "The parameter count for the F16 tensor type."
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "I64_params",
+    "type": "FLOAT",
+    "description": "The parameter count for the I64 tensor type."
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "I32_params",
+    "type": "FLOAT",
+    "description": "The parameter count for the I32 tensor type."
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "I16_params",
+    "type": "FLOAT",
+    "description": "The parameter count for the I16 tensor type."
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "I8_params",
+    "type": "FLOAT",
+    "description": "The parameter count for the I8 tensor type."
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "BF16_params",
+    "type": "FLOAT",
+    "description": "The parameter count for the BF16 tensor type."
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "U8_params",
+    "type": "FLOAT",
+    "description": "The parameter count for the U8 tensor type."
+  }
+]

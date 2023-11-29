@@ -1,6 +1,6 @@
-import urllib.request, json, re
+import urllib.request, re, os
 import json
-from collections import OrderedDict
+import argparse
 
 def get_model_ids() -> list:
     """
@@ -43,6 +43,12 @@ def get_model_data(models: list) -> tuple[dict, list]:
             missed_list.append(model["id"])
     return info_dict, missed_list
 
+def get_model_tags_by_type():
+    tag_url = "https://huggingface.co/api/models-tags-by-type"
+    with urllib.request.urlopen(tag_url) as url:
+        data = json.load(url)
+    return data
+
 def save_results(data: dict, filename: str) -> None:
     """
     Save the model info
@@ -53,6 +59,13 @@ def save_results(data: dict, filename: str) -> None:
     out = open(filename, "w")
     for entry in data:
         out.write(json.dumps(data[entry], ensure_ascii=False) + "\n")
+    out.close()
+
+def save_model_types(type_data: dict, filename: str) -> None:
+    out = open(filename, "w")
+    for entry in type_data:
+        for element in type_data[entry]:
+            out.write(json.dumps(element, ensure_ascii=False) + "\n")
     out.close()
 
 def save_missed(missed: list, filename: str) -> None:
@@ -68,11 +81,13 @@ def save_missed(missed: list, filename: str) -> None:
     out.close()
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("out_dir", type=str,
+                        help="A directory for writing the model data")
+    args = parser.parse_args()
     all_models = get_model_ids()
-    output, missed_data, top_level = get_model_data(all_models)
-    save_results(output, "data/models.jsonl")
-    save_missed(missed_data, "data/missed.jsonl")
-    out = open("data/top_level.txt", "w")
-    for entry in top_level:
-        out.write(f"{entry}\n")
-    out.close()
+    output, missed_data = get_model_data(all_models)
+    model_type_data = get_model_tags_by_type()
+    save_results(output, os.path.join(args.out_dir, "models.jsonl"))
+    save_model_types(model_type_data, os.path.join(args.out_dir, "tag_types.jsonl"))
+    save_missed(missed_data, os.path.join(args.out_dir, "missed.jsonl"))

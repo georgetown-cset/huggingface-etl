@@ -1,0 +1,11 @@
+{
+  "raw_model": "All model data. This table is not curated or cleaned, but is the location of complete data from the Hugging Face API. Use with caution",
+  "usage" : "Model usage indicators, including downloads and likes, as well as timestamp indicating when usage indicators were pulled.",
+  "core_model" : "Core fields representing basic model information.",
+  "datasets" : "Information about datasets used in the model.",
+  "metrics" : "Information about metrics used to evaluate the model.",
+  "model_card" : "Core information found in the model card.",
+  "parameters" : "Model parameter counts and tensor types.",
+  "tasks" : "Tasks the model is designed to be used for.",
+  "leaderboard": "Hugging Face LLM leaderboard data."
+}

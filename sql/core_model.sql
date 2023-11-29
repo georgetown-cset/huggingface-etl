@@ -1,0 +1,13 @@
+SELECT
+  id,
+  _id,
+  author,
+  lastModified,
+  private,
+  disabled,
+  gated,
+  pipeline_tag,
+  tags,
+  library_name
+FROM
+  staging_huggingface.raw_model
