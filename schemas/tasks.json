@@ -1,0 +1,38 @@
+[
+  {
+    "mode": "REQUIRED",
+    "name": "id",
+    "type": "STRING",
+    "description": "The text-based model id/name, also used to find the model on the website or in the API."
+  },
+  {
+    "mode": "REQUIRED",
+    "name": "_id",
+    "type": "STRING",
+    "description": "The model unique id primary key."
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "task_name",
+    "type": "STRING",
+    "description": "Task that the model performs."
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "task_type",
+    "type": "STRING",
+    "description": "Tag for task."
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "args",
+    "type": "STRING",
+    "description": "Task args."
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "metrics",
+    "type": "STRING",
+    "description": "Metrics associated to the task."
+  }
+]

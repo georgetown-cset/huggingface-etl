@@ -1,8 +1,18 @@
 import unittest
 import clean_data
+import datetime
 
 
 class TestCleanData(unittest.TestCase):
+
+    def test_stringify(self):
+        # test dict
+        dict_test = {"test": 8}
+        self.assertEqual('{"test": 8}', clean_data.stringify(dict_test))
+        # test int
+        int_test = 8
+        self.assertEqual("8", clean_data.stringify(int_test))
+
     def test_fix_repeateds(self):
         none_test = None
         self.assertEqual([], clean_data.fix_repeateds(none_test))
@@ -118,6 +128,23 @@ class TestCleanData(unittest.TestCase):
                         {"type": "f1", "value": 88.4735, "verified": False}]
         self.assertEqual(correct_test, clean_data.fix_result_metrics(correct_test))
 
+    def test_interpret_tags(self):
+        tag_dict = {"dataset:competitions/aiornot":
+                        {"id": "dataset:competitions/aiornot", "label": "competitions/aiornot",
+                         "type": "dataset", "subType": None},
+                    "ph" :{"id": "ph", "label": "ph", "type": "language", "subType": None},
+                    "license:epl-2.0" :{"id": "license:epl-2.0", "label": "epl-2.0",
+                                        "type": "license", "subType": None}}
+        single_tag_test = ["ph"]
+        self.assertEqual([{"id": "ph", "label": "ph", "type": "language", "subType": None}],
+                         clean_data.interpret_tags(tag_dict, single_tag_test))
+        multi_tag_test = ["ph", "dataset:competitions/aiornot"]
+        self.assertEqual([{"id": "ph", "label": "ph", "type": "language", "subType": None},
+                          {"id": "dataset:competitions/aiornot", "label": "competitions/aiornot",
+                           "type": "dataset", "subType": None}], clean_data.interpret_tags(tag_dict, multi_tag_test))
+        bad_tag_test = ["blah"]
+        self.assertEqual([], clean_data.interpret_tags(tag_dict, bad_tag_test))
+
     def test_fix_nullable_records(self):
         nullable_test = 7.2566545568791945
         self.assertEqual({"emissions": 7.2566545568791945}, clean_data.fix_nullable_record(nullable_test, "emissions"))
@@ -128,27 +155,27 @@ class TestCleanData(unittest.TestCase):
         null_test = None
         self.assertEqual([], clean_data.fix_metrics(null_test))
         string_test = "wer"
-        self.assertEqual([{"value": "wer"}], clean_data.fix_metrics(string_test))
+        self.assertEqual([{"name": "wer"}], clean_data.fix_metrics(string_test))
         list_test = ["accuracy"]
-        self.assertEqual([{"value": "accuracy"}], clean_data.fix_metrics(list_test))
+        self.assertEqual([{"name": "accuracy"}], clean_data.fix_metrics(list_test))
         bad_name_test = [{"accuracy": 0.9018}, {"F-1 score": 0.8956}]
         self.assertNotIn("F-1 score", clean_data.fix_metrics(bad_name_test)[1])
         self.assertNotIn("F-1_score", clean_data.fix_metrics(bad_name_test)[1])
-        self.assertIn("f1", clean_data.fix_metrics(bad_name_test)[1])
+        self.assertEqual({"name": "f1", "value": 0.8956}, clean_data.fix_metrics(bad_name_test)[1])
         cleanup_name_test = [{"EM": 17}, {"Subset match": 24.5}]
         self.assertNotIn("EM", clean_data.fix_metrics(cleanup_name_test)[0])
-        self.assertIn("em", clean_data.fix_metrics(cleanup_name_test)[0])
+        self.assertEqual({"name": "em", "value": 17}, clean_data.fix_metrics(cleanup_name_test)[0])
         self.assertNotIn("Subset match", clean_data.fix_metrics(cleanup_name_test)[1])
         self.assertNotIn("subset match", clean_data.fix_metrics(cleanup_name_test)[1])
         self.assertNotIn("Subset_match", clean_data.fix_metrics(cleanup_name_test)[1])
-        self.assertIn("subset_match", clean_data.fix_metrics(cleanup_name_test)[1])
-        non_core_test = [{"eval_loss": 0.08608942725107592}, {"eval_accuracy": 0.9925325215819639},
+        self.assertEqual({"name": "subset_match", "value": 24.5}, clean_data.fix_metrics(cleanup_name_test)[1])
+        cleanup_lots_test = [{"eval_loss": 0.08608942725107592}, {"eval_accuracy": 0.9925325215819639},
                          {"eval_f1": 0.8805402320715237}, {"average_rank": 0.27430093209054596}]
         self.assertEqual([{'name': 'eval_loss', 'value': 0.08608942725107592},
                           {'name': 'eval_accuracy', 'value': 0.9925325215819639},
                           {'name': 'eval_f1', 'value': 0.8805402320715237},
                           {'name': 'average_rank', 'value': 0.27430093209054596}],
-                         clean_data.fix_metrics(non_core_test))
+                         clean_data.fix_metrics(cleanup_lots_test))
 
     def test_fix_widget_data(self):
         nullable_test = {"text": "A courier received 50 packages yesterday and twice as many today.  All of these"
@@ -250,6 +277,18 @@ class TestCleanData(unittest.TestCase):
             "nblogo_3.png", "pipeline_tag": "token-classification", "datasets": ["norne"], "params":
             [{"name": "inference", "value": '{"parameters": {"aggregation_strategy": "first"}}'}]},
                          clean_data.clean_carddata_base_fields(non_core_test))
+
+    def test_fix_co2(self):
+        core_co2 = {"emissions": 5.323053488245721}
+        self.assertEqual({"emissions": 5.323053488245721}, clean_data.fix_co2(core_co2))
+        extra_still_core_co2 = {"emissions": 7540, "source": "MLCo2 Machine Learning Impact calculator",
+                                "geographical_location": "East USA", "hardware_used": "TPU v3-8"}
+        self.assertEqual({"emissions": 7540, "source": "MLCo2 Machine Learning Impact calculator",
+                                "geographical_location": "East USA", "hardware_used": "TPU v3-8"},
+                         clean_data.fix_co2(extra_still_core_co2))
+        non_core_co2 = {"emissions": 5.323053488245721, "fake_field": 293}
+        self.assertEqual({"emissions": 5.323053488245721, "params": [{"name": "fake_field", "value": 293}]},
+                         clean_data.fix_co2(non_core_co2))
 
 if __name__ == '__main__':
     unittest.main()

@@ -1,0 +1,116 @@
+[
+  {
+    "mode": "REQUIRED",
+    "name": "id",
+    "type": "STRING",
+    "description": "The text-based model id/name, also used to find the model on the website or in the API."
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "type",
+    "type": "STRING",
+    "description": "The model type, one of pretrained, fine-tuned, instruction-tuned, RL-tuned, or ?."
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "precision",
+    "type": "STRING",
+    "description": "The model precision."
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "params",
+    "type": "FLOAT",
+    "description": "Total model parameters (in billions)."
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "average",
+    "type": "FLOAT",
+    "description": "Average model performance across the four metrics."
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "ARC",
+    "type": "FLOAT",
+    "description": "Model performance on ARC metric."
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "HellaSwag",
+    "type": "FLOAT",
+    "description": "Model performance on HellaSwag metric."
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "MMLU",
+    "type": "FLOAT",
+    "description": "Model performance on MMLU metric."
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "TruthfulQA",
+    "type": "FLOAT",
+    "description": "Model performance on TruthfulQA metric."
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "Winogrande",
+    "type": "FLOAT",
+    "description": "Model performance on Winogrande metric."
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "GSM8K",
+    "type": "FLOAT",
+    "description": "Model performance on GSM8K metric."
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "DROP",
+    "type": "FLOAT",
+    "description": "Model performance on DROP metric."
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "hub",
+    "type": "FLOAT",
+    "description": "Model hub."
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "hub_license",
+    "type": "STRING",
+    "description": "Model hub license."
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "architecture",
+    "type": "STRING",
+    "description": "Model architecture."
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "model_website",
+    "type": "STRING",
+    "description": "Hugging Face website of model."
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "type_indicator",
+    "type": "STRING",
+    "description": "Visual symbol used to indicate type on model hub. This corresponds to the type field."
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "available_on_hub",
+    "type": "BOOLEAN",
+    "description": "Whether the model is available on the hub."
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "sha",
+    "type": "STRING",
+    "description": "Model sha hash."
+  }
+]

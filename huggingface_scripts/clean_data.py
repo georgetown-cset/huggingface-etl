@@ -1,5 +1,8 @@
 import json
 import copy
+from datetime import datetime
+import argparse
+import os
 
 SUBFIELDS = set()
 
@@ -157,6 +160,23 @@ def fix_result_metrics(metrics):
                 del metric[field_name]
     return metrics
 
+def read_tag_data(tag_file):
+    tag_dict = {}
+    with open(tag_file, "r") as f:
+        for i, line in enumerate(f):
+            tag_info = json.loads(line)
+            tag_dict[tag_info["id"]] = tag_info
+            if not "subType" in tag_info:
+                tag_dict[tag_info["id"]]["subType"] = None
+    return tag_dict
+
+def interpret_tags(tag_dict, tags):
+    tag_list = []
+    for tag in tags:
+        if tag in tag_dict:
+            tag_list.append(tag_dict[tag])
+    return tag_list
+
 def fix_nullable_record(data, record_label):
     """
     The goal of this function is to handle cases where there are two versions of a field, one that is a nullable
@@ -178,19 +198,23 @@ def fix_metrics(data):
     :param data: The metrics field within cardData
     :return: The fixed metrics field within cardData
     """
-    core_fields = ["name", "value", "type", "loss", "perplexity", "precision", "recall",
-                   "f1", "accuracy", "em", "subset_match", "rouge1", "rougel"]
+    core_fields = ["name", "value", "type"]
     # if the field is empty, return a repeated of records
     if not data:
         return []
     # if we have a single value (string/float/int etc.) convert to a repeated record
     if type(data) != list and type(data) != dict:
-        return [{"value": data}]
+        if type(data) == str:
+            return [{"name": data}]
+        else:
+            return [{"value": data}]
     if type(data) == list:
         # if there's just a string or int or float sitting in the first element in metrics
         if type(data[0]) != dict:
-            new_data = [{"value": stringify(element)} for element in data if element]
+            new_data = [{"name" if type(data[0]) == str else "value": stringify(element)}
+                        for element in data if element]
         else:
+            # normalize some of the names so they're more consistent
             temp_new_data = [{"_".join(i.split()).replace("F-1_score", "f1").lower(): j}
                         for element in data for i, j in element.items()]
             new_data = [{i: j} for element in temp_new_data for i, j in element.items() if i in core_fields]
@@ -252,12 +276,27 @@ def clean_config(data):
         return data
     new_data = copy.deepcopy(data)
     for field in data:
-        if field == "model_type" and data[field] and type(data[field]) == list:
-            if len(data[field]) == 1:
-                new_data[field] = new_data[field][0]
+        if field == "architectures" and data[field] and type(data[field]) != list:
+            if "value" in data[field] and type(data[field]["value"]) == list:
+                new_data[field] = data[field]["value"]
             else:
-                # this has never happened but just in case
-                new_data[field] = ", ".join([stringify(i) for i in new_data[field]])
+                # we just don't care that much about architectures
+                # most of them are formatted correctly or are misformatted as above
+                # if any are misformatted in a new way
+                # we're not letting a few rows that are badly formatted crash us
+                new_data[field] = []
+        if field == "model_type" and data[field]:
+            if type(data[field]) == list:
+                if len(data[field]) == 1:
+                    new_data[field] = new_data[field][0]
+                else:
+                    # this has never happened but just in case
+                    new_data[field] = ", ".join([stringify(i) for i in new_data[field]])
+            elif type(data[field]) == dict:
+                if "value" in data[field]:
+                    new_data[field] = stringify(data[field]["value"])
+                else:
+                    new_data[field] = stringify(data[field])
         if field == "auto_map" and data[field]:
             subfields = []
             for subfield in data[field]:
@@ -270,12 +309,26 @@ def clean_config(data):
                 subfields.append(updated)
             new_data[field] = subfields
         if field == "sklearn" and data[field]:
+            known_subfields = ["filename", "columns", "environment", "example_input",
+                               "model", "task", "use_intelex", "model_format"]
             for subfield in data[field]:
                 # This subfield is a record that contains any potential sample input depending on the model
                 # Which is just too many possibilities to enumerate (as the fields are the specific model's fields)
                 # So we convert the json to text
                 if subfield == "example_input":
                     new_data[field][subfield] = stringify(data[field][subfield])
+                elif subfield not in known_subfields:
+                    # We've never seen this so if this happens it happens so
+                    # rarely the data is irrelevant and we don't care
+                    del new_data[field][subfield]
+        if field == "diffusers" and data[field]:
+            for subfield in data[field]:
+                if "class_name" == subfield:
+                    new_data[field][subfield] = stringify(data[field][subfield])
+                else:
+                    # We've never seen this so if this happens it happens so
+                    # rarely the data is irrelevant and we don't care
+                    del new_data[field][subfield]
         # Then go through the task specific parameters to deal with their nonsense
         if "task" in field and "specific" in field and data[field]:
             # If the task specific parameters aren't a dictionary of parameters
@@ -336,6 +389,9 @@ def clean_carddata_base_fields(card_data):
     """
     core_fields = ["language", "tags", "license", "thumbnail", "pipeline_tag", "datasets", "metrics",
                    "widget", "model_index", "co2_eq_emissions", "model_type", "library_tag", "library_version"]
+    string_core = ["thumbnail", "model_type", "library_tag", "library_version"]
+    co2_fields = ["emissions", "source", "geographical_location", "hardware_used", "on_cloud", "training_type",
+                  "cpu_model", "gpu_model", "ram_total_size", "hours_used"]
     new_card_data = copy.deepcopy(card_data)
     singulars = {"tag": "tags",
                  "dataset": "datasets"}
@@ -358,11 +414,30 @@ def clean_carddata_base_fields(card_data):
             field_data = {"name": field, "value": stringify(card_data[field])}
             additional_fields.append(field_data)
             del new_card_data[field]
+        if field in string_core:
+            new_card_data[field] = stringify(card_data[field])
     if additional_fields:
         new_card_data["params"] = additional_fields
     return new_card_data
 
-def fix_data(filename):
+def fix_co2(co2_field):
+    co2_subfields = ["emissions", "source", "geographical_location", "hardware_used", "on_cloud", "training_type",
+                  "cpu_model", "gpu_model", "ram_total_size", "hours_used"]
+    params = []
+    subfields_to_remove = []
+    for subfield in co2_field:
+        if subfield not in co2_subfields:
+            data = {"name": subfield, "value": co2_field[subfield]}
+            params.append(data)
+            subfields_to_remove.append(subfield)
+    if params:
+        co2_field["params"] = params
+        for subfield_to_remove in subfields_to_remove:
+            del co2_field[subfield_to_remove]
+    return co2_field
+
+
+def fix_data(filename, tag_dict):
     """
     The primary function for cleaning all the data
     :param filename: The filename containing the data to clean
@@ -401,27 +476,48 @@ def fix_data(filename):
                 if "co2_eq_emissions" in result["cardData"]:
                     newline["cardData"]["co2_eq_emissions"] = fix_nullable_record(
                         newline["cardData"]["co2_eq_emissions"], "emissions")
+                    newline["cardData"]["co2_eq_emissions"] = fix_co2(newline["cardData"]["co2_eq_emissions"])
                 if "metrics" in result["cardData"]:
                     newline["cardData"]["metrics"] = fix_metrics(newline["cardData"]["metrics"])
                 for field in ["tags", "language", "license", "datasets", "pipeline_tag"]:
                     if field in result["cardData"]:
                         newline["cardData"][field] = fix_repeateds(newline["cardData"][field])
                 newline["cardData"] = clean_carddata_base_fields(newline["cardData"])
+            newline["tags"] = interpret_tags(tag_dict, result["tags"])
             output.append(newline)
     return output
 
-def write_output(data, filename):
+def write_output(data, out_dir: str):
     """
     Write the output json to a file
     :param data: The output data to write
-    :param filename: The filename to write to
+    :param out_dir: directory for writing output data to
     :return: None
     """
-    out = open(filename, "w")
+    counts_fields = ["id", "_id", "modelId", "downloads", "likes"]
+    timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    out = open(os.path.join(out_dir, "models_fixed.jsonl"), "w")
+    usage_out = open(os.path.join(out_dir, "usage.jsonl"), "w")
     for entry in data:
         out.write(json.dumps(entry, ensure_ascii=False) + "\n")
+        usage_entry = {i: entry[i] for i in entry if i in counts_fields}
+        usage_entry["update_time"] = timestamp
+        usage_out.write(json.dumps(usage_entry, ensure_ascii=False) + "\n")
     out.close()
+    usage_out.close()
 
 if __name__ == "__main__":
-    out_data = fix_data("data/models.jsonl")
-    write_output(out_data, "data/models_fixed.jsonl")
+    parser = argparse.ArgumentParser()
+    parser.add_argument("infile", type=str,
+                        help="A jsonl file containing the extracted model data, with fully specified path")
+    parser.add_argument("tagfile", type=str,
+                        help="A jsonl file containing the tag file, with fully specified path")
+    parser.add_argument("out_dir", type=str,
+                        help="A directory for writing the cleaned model data")
+
+    args = parser.parse_args()
+    if "jsonl" not in args.infile:
+        parser.print_help()
+    tag_helper = read_tag_data(args.tagfile)
+    out_data = fix_data(args.infile, tag_helper)
+    write_output(out_data, args.out_dir)
