@@ -28,7 +28,7 @@ def get_page_data() -> list:
 
 def parse_leaderboard_data(leaderboard_json: list) -> list:
     all_fields = ["type_indicator", "model_website", "average", "ARC", "HellaSwag", "MMLU", "TruthfulQA",
-                  "Winogrande", "GSM8K", "DROP", "type", "architecture", "precision", "hub_license",
+                  "Winogrande", "GSM8K", "type", "architecture", "precision", "hub_license",
                   "params", "hub", "available_on_hub", "sha", "id"]
     leaderboard = []
     for elem in leaderboard_json:
