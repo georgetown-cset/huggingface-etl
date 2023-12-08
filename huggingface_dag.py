@@ -205,7 +205,7 @@ with dag:
         destination_project_dataset_table=f"{staging_dataset}.leaderboard",
         source_format="NEWLINE_DELIMITED_JSON",
         create_disposition="CREATE_IF_NEEDED",
-        write_disposition="WRITE_APPEND"
+        write_disposition="WRITE_TRUNCATE"
     )
 
     wait_for_tables = DummyOperator(task_id="wait_for_tables")

@@ -67,12 +67,6 @@
   },
   {
     "mode": "NULLABLE",
-    "name": "DROP",
-    "type": "FLOAT",
-    "description": "Model performance on DROP metric."
-  },
-  {
-    "mode": "NULLABLE",
     "name": "hub",
     "type": "FLOAT",
     "description": "Model hub."
