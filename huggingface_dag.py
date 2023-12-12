@@ -43,7 +43,7 @@ dag = DAG(
     "huggingface",
     default_args=default_args,
     description="Hugging Face data scraper and updater",
-    schedule_interval=None,
+    schedule_interval="0 0 17 * *",
     catchup=False,
     user_defined_macros={
         "staging_dataset": staging_dataset,
