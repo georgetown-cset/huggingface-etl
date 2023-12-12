@@ -2,7 +2,7 @@ import unittest
 import scrape_leaderboard
 
 
-class MyTestCase(unittest.TestCase):
+class TestScrapeLeaderboard(unittest.TestCase):
     def test_get_page_data(self):
         leaderboard_data = scrape_leaderboard.get_page_data()
         self.assertEqual(type(leaderboard_data), list)

@@ -30,8 +30,8 @@ bucket = DATA_BUCKET
 production_dataset = "huggingface"
 staging_dataset = f"staging_{production_dataset}"
 backups_dataset = f"{production_dataset}_backups"
-sql_dir = "sql/huggingface"
-schema_dir = "huggingface/schemas"
+sql_dir = f"sql/{production_dataset}"
+schema_dir = f"{production_dataset}/schemas"
 tmp_dir = f"{production_dataset}/tmp"
 
 default_args = get_default_args()
