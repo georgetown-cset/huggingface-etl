@@ -15,6 +15,8 @@ def get_page_data() -> list:
             if "window.gradio_config" in script.text:
                 json_containing_script = script.text
                 json_data_locations = [m.start() for m in re.finditer(r'"data":', json_containing_script)]
+                # if this assertion fails something about the code structure may have changed and we want to take a look
+                assert len(json_data_locations) == 15
                 # we know from the structure of this file that the interesting data is in the second data entry
                 # we also want to strip the "data" field
                 json_str = json_containing_script[json_data_locations[3] + 7:]
@@ -29,7 +31,7 @@ def get_page_data() -> list:
 def parse_leaderboard_data(leaderboard_json: list) -> list:
     all_fields = ["type_indicator", "model_website", "average", "ARC", "HellaSwag", "MMLU", "TruthfulQA",
                   "Winogrande", "GSM8K", "type", "architecture", "precision", "hub_license",
-                  "params", "hub", "available_on_hub", "sha", "id"]
+                  "params", "hub", "available_on_hub", "sha", "flagged", "id"]
     leaderboard = []
     for elem in leaderboard_json:
         json_elem = {all_fields[i]: value for i, value in enumerate(elem)}
