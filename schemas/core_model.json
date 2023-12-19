@@ -1,0 +1,84 @@
+[
+  {
+    "mode": "REQUIRED",
+    "name": "id",
+    "type": "STRING",
+    "description": "The text-based model id/name, also used to find the model on the website or in the API."
+  },
+  {
+    "mode": "REQUIRED",
+    "name": "_id",
+    "type": "STRING",
+    "description": "The model unique id primary key."
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "author",
+    "type": "STRING",
+    "description": "The model author."
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "lastModified",
+    "type": "TIMESTAMP",
+    "description": "The last modified time."
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "private",
+    "type": "BOOLEAN",
+    "description": "Indicator of whether the model is private. Note: the API does not let us download private models so this should always be false."
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "disabled",
+    "type": "BOOLEAN",
+    "description": "Indicator of whether the model is disabled. Note: the API does not let us download disabled models so this should always be false."
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "gated",
+    "type": "BOOLEAN",
+    "description": "Indicator of whether the model is gated. Note: the API does not let us download gated models so this should always be false."
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "pipeline_tag",
+    "type": "STRING",
+    "description": "The task the model is intended to perform (similar to Papers With Code-style tasks)."
+  },
+  {
+    "mode": "REPEATED",
+    "name": "tags",
+    "description": "Tags relevant to the model, including tasks, libraries, datasets, and more.",
+    "type": "RECORD",
+    "fields": [
+      {
+        "mode": "NULLABLE",
+        "name": "id",
+        "type": "STRING"
+      },
+      {
+        "mode": "NULLABLE",
+        "name": "label",
+        "type": "STRING"
+      },
+      {
+        "mode": "NULLABLE",
+        "name": "type",
+        "type": "STRING"
+      },
+      {
+        "mode": "NULLABLE",
+        "name": "subtype",
+        "type": "STRING"
+      }
+    ]
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "library_name",
+    "type": "STRING",
+    "description": "Software library the model is designed to be used in."
+  }
+]

@@ -1,0 +1,50 @@
+[
+  {
+    "mode": "REQUIRED",
+    "name": "id",
+    "type": "STRING",
+    "description": "The text-based model id/name, also used to find the model on the website or in the API."
+  },
+  {
+    "mode": "REQUIRED",
+    "name": "_id",
+    "type": "STRING",
+    "description": "The model unique id primary key."
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dataset",
+    "type": "STRING",
+    "description": "The dataset name."
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dataset_type",
+    "type": "STRING",
+    "description": "The dataset type (in practice, this often seems to be the same as the dataset name)."
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "config",
+    "type": "STRING",
+    "description": "The configuration."
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dataset_split",
+    "type": "STRING",
+    "description": "The dataset split (e.g. train, test, validation)."
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "revision",
+    "type": "STRING",
+    "description": "The revision."
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "args",
+    "type": "STRING",
+    "description": "Dataset arguments."
+  }
+]

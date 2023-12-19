@@ -54,7 +54,29 @@
   {
     "mode": "REPEATED",
     "name": "tags",
-    "type": "STRING"
+    "type": "RECORD",
+    "fields": [
+      {
+        "mode": "NULLABLE",
+        "name": "id",
+        "type": "STRING"
+      },
+      {
+        "mode": "NULLABLE",
+        "name": "label",
+        "type": "STRING"
+      },
+      {
+        "mode": "NULLABLE",
+        "name": "type",
+        "type": "STRING"
+      },
+      {
+        "mode": "NULLABLE",
+        "name": "subType",
+        "type": "STRING"
+      }
+    ]
   },
   {
     "mode": "NULLABLE",
@@ -571,56 +593,6 @@
             "mode": "NULLABLE",
             "name": "type",
             "type": "STRING"
-          },
-          {
-            "mode": "NULLABLE",
-            "name": "loss",
-            "type": "FLOAT"
-          },
-          {
-            "mode": "NULLABLE",
-            "name": "perplexity",
-            "type": "FLOAT"
-          },
-          {
-            "mode": "NULLABLE",
-            "name": "precision",
-            "type": "FLOAT"
-          },
-          {
-            "mode": "NULLABLE",
-            "name": "recall",
-            "type": "FLOAT"
-          },
-          {
-            "mode": "NULLABLE",
-            "name": "f1",
-            "type": "FLOAT"
-          },
-          {
-            "mode": "NULLABLE",
-            "name": "accuracy",
-            "type": "FLOAT"
-          },
-          {
-            "mode": "NULLABLE",
-            "name": "em",
-            "type": "FLOAT"
-          },
-          {
-            "mode": "NULLABLE",
-            "name": "subset_match",
-            "type": "FLOAT"
-          },
-          {
-            "mode": "NULLABLE",
-            "name": "rouge1",
-            "type": "FLOAT"
-          },
-          {
-            "mode": "NULLABLE",
-            "name": "rougel",
-            "type": "FLOAT"
           }
         ]
       },
@@ -875,8 +847,50 @@
           },
           {
             "mode": "NULLABLE",
+            "name": "on_cloud",
+            "type": "STRING"
+          },
+          {
+            "mode": "NULLABLE",
             "name": "training_type",
             "type": "STRING"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "cpu_model",
+            "type": "STRING"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "gpu_model",
+            "type": "STRING"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "ram_total_size",
+            "type": "STRING"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "hours_used",
+            "type": "STRING"
+          },
+          {
+            "mode": "REPEATED",
+            "name": "params",
+            "type": "RECORD",
+            "fields": [
+              {
+                "mode": "NULLABLE",
+                "name": "name",
+                "type": "STRING"
+              },
+              {
+                "mode": "NULLABLE",
+                "name": "value",
+                "type": "STRING"
+              }
+            ]
           }
         ]
       }
@@ -947,6 +961,11 @@
           {
             "mode": "NULLABLE",
             "name": "I32",
+            "type": "INTEGER"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "I16",
             "type": "INTEGER"
           },
           {

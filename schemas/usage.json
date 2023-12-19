@@ -1,0 +1,29 @@
+ [
+  {
+    "mode": "REQUIRED",
+    "name": "id",
+    "type": "STRING",
+    "description": "The text-based model id/name, also used to find the model on the website or in the API."
+  },
+  {
+    "mode": "REQUIRED",
+    "name": "_id",
+    "type": "STRING",
+    "description": "The model unique id."
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "downloads",
+    "type": "INTEGER"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "likes",
+    "type": "INTEGER"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "update_time",
+    "type": "TIMESTAMP"
+  }
+]

@@ -1,0 +1,32 @@
+[
+  {
+    "mode": "REQUIRED",
+    "name": "id",
+    "type": "STRING",
+    "description": "The text-based model id/name, also used to find the model on the website or in the API."
+  },
+  {
+    "mode": "REQUIRED",
+    "name": "_id",
+    "type": "STRING",
+    "description": "The model unique id primary key."
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "metric",
+    "type": "STRING",
+    "description": "The metric name."
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "type",
+    "type": "STRING",
+    "description": "The metric type (in practice, this often seems to be the same as the metric name)."
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "value",
+    "type": "STRING",
+    "description": "The metric value."
+  }
+]

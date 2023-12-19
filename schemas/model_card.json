@@ -1,0 +1,56 @@
+[
+  {
+    "mode": "REQUIRED",
+    "name": "id",
+    "type": "STRING",
+    "description": "The text-based model id/name, also used to find the model on the website or in the API."
+  },
+  {
+    "mode": "REQUIRED",
+    "name": "_id",
+    "type": "STRING",
+    "description": "The model unique id primary key."
+  },
+  {
+    "mode": "REPEATED",
+    "name": "language",
+    "type": "STRING",
+    "description": "The languages in the model."
+  },
+  {
+    "mode": "REPEATED",
+    "name": "tags",
+    "type": "STRING",
+    "description": "The model tags. Typically these seem to be the study fields the model is used in."
+  },
+  {
+    "mode": "REPEATED",
+    "name": "license",
+    "type": "STRING",
+    "description": "The model license."
+  },
+  {
+    "mode": "REPEATED",
+    "name": "thumbnail",
+    "type": "STRING",
+    "description": "The model thumbnail."
+  },
+  {
+    "mode": "REPEATED",
+    "name": "model_type",
+    "type": "STRING",
+    "description": "The model type."
+  },
+  {
+    "mode": "REPEATED",
+    "name": "library_tag",
+    "type": "STRING",
+    "description": "Library tags."
+  },
+  {
+    "mode": "REPEATED",
+    "name": "library_version",
+    "type": "STRING",
+    "description": "The library version."
+  }
+]
