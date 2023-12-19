@@ -103,6 +103,12 @@
   },
   {
     "mode": "NULLABLE",
+    "name": "flagged",
+    "type": "BOOLEAN",
+    "description": "Whether the model has been flagged for unfair performance on the leaderboard."
+  },
+  {
+    "mode": "NULLABLE",
     "name": "sha",
     "type": "STRING",
     "description": "Model sha hash."
