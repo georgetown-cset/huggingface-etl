@@ -123,7 +123,7 @@ with dag:
                             "key": "cloud.google.com/gke-nodepool",
                             "operator": "In",
                             "values": [
-                                "default-pool",
+                                "huggingface-pool",
                             ]
                         }]
                     }]
@@ -186,7 +186,7 @@ with dag:
                             "key": "cloud.google.com/gke-nodepool",
                             "operator": "In",
                             "values": [
-                                "default-pool",
+                                "huggingface-pool",
                             ]
                         }]
                     }]
