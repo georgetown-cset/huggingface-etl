@@ -38,7 +38,8 @@ def get_model_data(models: list) -> tuple[dict, list]:
             with urllib.request.urlopen(f"https://huggingface.co/api/models/{model['id']}") as url:
                 data = json.load(url)
                 info_dict[model["id"]] = data
-                print(i, model["id"])
+                if i % 1000 == 0:
+                    print(i, model["id"])
         except:
             missed_list.append(model["id"])
     return info_dict, missed_list
