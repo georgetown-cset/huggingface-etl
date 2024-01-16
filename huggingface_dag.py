@@ -65,7 +65,7 @@ with dag:
         task_id="run_extract_data",
         project_id=PROJECT_ID,
         location=GCP_ZONE,
-        cluster_name="us-east1-production2023-cc1-01d75926-gke",
+        cluster_name="cc2-task-pool",
         name="run_extract_data",
         cmds=["/bin/bash"],
         arguments=["-c", (f"echo 'extracting hugging face data!' ; rm -r data || true ; "
@@ -85,7 +85,7 @@ with dag:
                             "key": "cloud.google.com/gke-nodepool",
                             "operator": "In",
                             "values": [
-                                "huggingface-pool",
+                                "hugging-face-pool",
                             ]
                         }]
                     }]
@@ -100,7 +100,7 @@ with dag:
         task_id="run_clean_data",
         project_id=PROJECT_ID,
         location=GCP_ZONE,
-        cluster_name="us-east1-production2023-cc1-01d75926-gke",
+        cluster_name="cc2-task-pool",
         name="run_extract_data",
         cmds=["/bin/bash"],
         arguments=["-c", (f"echo 'cleaning hugging face data!' ; rm -r data || true ; "
@@ -123,7 +123,7 @@ with dag:
                             "key": "cloud.google.com/gke-nodepool",
                             "operator": "In",
                             "values": [
-                                "huggingface-pool",
+                                "hugging-face-pool",
                             ]
                         }]
                     }]
@@ -166,7 +166,7 @@ with dag:
         task_id="run_scrape_leaderboard",
         project_id=PROJECT_ID,
         location=GCP_ZONE,
-        cluster_name="us-east1-production2023-cc1-01d75926-gke",
+        cluster_name="cc2-task-pool",
         name="run_extract_data",
         cmds=["/bin/bash"],
         arguments=["-c", (f"echo 'scraping hugging face leaderboard!' ; rm -r data || true ; "
@@ -186,7 +186,7 @@ with dag:
                             "key": "cloud.google.com/gke-nodepool",
                             "operator": "In",
                             "values": [
-                                "huggingface-pool",
+                                "hugging-face-pool",
                             ]
                         }]
                     }]
