@@ -250,8 +250,8 @@ class TestCleanData(unittest.TestCase):
                                           "example_input": {"petal length (cm)": [4.7, 1.7, 6.9], "petal width (cm)":
                                               [1.2, 0.3, 2.3], "sepal length (cm)": [6.1, 5.7, 7.7], "sepal width (cm)":
                                               [2.8, 3.8, 2.6]}}}
-        self.assertEqual({"sklearn": {"columns": ["sepal length (cm)", "sepal width (cm)", "petal length (cm)",
-                                                      "petal width (cm)"], "environment": ["scikit-learn=1.0.2"],
+        self.assertEqual({"sklearn": {"columns": "['sepal length (cm)', 'sepal width (cm)', 'petal length (cm)', "
+                                                 "'petal width (cm)']", "environment": "['scikit-learn=1.0.2']",
                               "example_input": '{"petal length (cm)": [4.7, 1.7, 6.9], "petal width (cm)": [1.2, 0.3,'
                                                ' 2.3], "sepal length (cm)": [6.1, 5.7, 7.7], "sepal width (cm)": [2.8,'
                                                ' 3.8, 2.6]}'}}, clean_data.clean_config(example_input_test))
