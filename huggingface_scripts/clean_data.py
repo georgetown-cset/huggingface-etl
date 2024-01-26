@@ -324,9 +324,6 @@ def clean_config(data):
             known_subfields = ["filename", "columns", "environment", "example_input",
                                "model", "task", "use_intelex", "model_format"]
             for subfield in data[field]:
-                # This subfield is a record that contains any potential sample input depending on the model
-                # Which is just too many possibilities to enumerate (as the fields are the specific model's fields)
-                # So we convert the json to text
                 if subfield in known_subfields:
                     new_data[field][subfield] = stringify(data[field][subfield])
                 elif subfield not in known_subfields:

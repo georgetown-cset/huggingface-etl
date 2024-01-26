@@ -82,7 +82,6 @@ class TestCleanData(unittest.TestCase):
               "metrics": [{"name": "Accuracy", "type": "accuracy", "value": 0.9844313470062116}]}]}]
         self.assertEqual(correct_test, clean_data.fix_model_index(correct_test))
 
-
     def test_fix_result_datasets(self):
         string_test = ["wine-quality"]
         self.assertEqual([{"name": "wine-quality"}], clean_data.fix_result_datasets(string_test))
