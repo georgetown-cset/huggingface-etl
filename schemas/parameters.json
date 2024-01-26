@@ -76,5 +76,17 @@
     "name": "U8_params",
     "type": "FLOAT",
     "description": "The parameter count for the U8 tensor type."
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "Q4_params",
+    "type": "FLOAT",
+    "description": "The parameter count for the Q4 tensor type."
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "BOOL_params",
+    "type": "FLOAT",
+    "description": "The parameter count for the BOOL tensor type."
   }
 ]

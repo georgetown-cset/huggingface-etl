@@ -29,9 +29,9 @@ def get_page_data() -> list:
     return []
 
 def parse_leaderboard_data(leaderboard_json: list) -> list:
-    all_fields = ["type_indicator", "model_website", "average", "ARC", "HellaSwag", "MMLU", "TruthfulQA",
-                  "Winogrande", "GSM8K", "type", "architecture", "precision", "hub_license",
-                  "params", "hub", "available_on_hub", "sha", "flagged", "id"]
+    all_fields = ["type_indicator", "model_website", "average", "ARC", "HellaSwag", "MMLU", "TruthfulQA", "Winogrande",
+                  "GSM8K", "type", "architecture", "weight_type", "precision", "merged", "hub_license",
+                  "params", "hub", "available_on_hub", "sha", "flagged", "mixture_of_experts", "id"]
     leaderboard = []
     for elem in leaderboard_json:
         json_elem = {all_fields[i]: value for i, value in enumerate(elem)}
