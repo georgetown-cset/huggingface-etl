@@ -59,6 +59,7 @@ def fix_model_index(data):
     """
     if not data:
         return data
+    results_fields = ["task", "tasks", "dataset", "datasets", "metric", "metrics", "values"]
     new_data = []
     if type(data) == dict:
         data = [data]
@@ -101,6 +102,13 @@ def fix_model_index(data):
                         if "metrics" in new_val["task"]:
                             new_val["task"]["metrics"] = stringify(new_val['task']['metrics'])
                         del new_val["tasks"]
+                    extra_fields = [i for i in val if i not in results_fields]
+                    if extra_fields:
+                        results_params = []
+                        for field_name in extra_fields:
+                            results_params.append({"name": field_name, "val": stringify(new_val[field_name])})
+                            del new_val[field_name]
+                        new_val["params"] = results_params
                     new_vals.append(new_val)
                 new_elem["results"] = new_vals
         new_data.append(new_elem)
@@ -198,7 +206,7 @@ def fix_metrics(data):
     :param data: The metrics field within cardData
     :return: The fixed metrics field within cardData
     """
-    core_fields = ["name", "value", "type"]
+    core_fields = {"name", "value", "type"}
     # if the field is empty, return a repeated of records
     if not data:
         return []
@@ -215,10 +223,11 @@ def fix_metrics(data):
                         for element in data if element]
         else:
             # normalize some of the names so they're more consistent
-            temp_new_data = [{"_".join(i.split()).replace("F-1_score", "f1").lower(): j}
-                        for element in data for i, j in element.items()]
-            new_data = [{i: j} for element in temp_new_data for i, j in element.items() if i in core_fields]
-            other_part = [{"name": i, "value": j} for element
+            temp_new_data = [{"_".join(i.split()).replace("F-1_score", "f1").lower(): stringify(j)
+                              for i, j in element.items()} for element in data ]
+            new_data = [{i: stringify(j) for i, j in element.items()} for element in temp_new_data
+                                if element.keys() - core_fields == set()]
+            other_part = [{"name": i, "value": stringify(j)} for element
                            in temp_new_data for i, j in element.items() if i not in core_fields]
             new_data.extend(other_part)
         return new_data
@@ -275,6 +284,9 @@ def clean_config(data):
     if not data:
         return data
     new_data = copy.deepcopy(data)
+    handled_config_fields = ["architectures", "model_type", "task_specific_params", "adapter_transformers",
+                             "speechbrain", "auto_map", "diffusers", "sklearn"]
+    external_params = []
     for field in data:
         if field == "architectures" and data[field] and type(data[field]) != list:
             if "value" in data[field] and type(data[field]["value"]) == list:
@@ -312,10 +324,7 @@ def clean_config(data):
             known_subfields = ["filename", "columns", "environment", "example_input",
                                "model", "task", "use_intelex", "model_format"]
             for subfield in data[field]:
-                # This subfield is a record that contains any potential sample input depending on the model
-                # Which is just too many possibilities to enumerate (as the fields are the specific model's fields)
-                # So we convert the json to text
-                if subfield == "example_input":
+                if subfield in known_subfields:
                     new_data[field][subfield] = stringify(data[field][subfield])
                 elif subfield not in known_subfields:
                     # We've never seen this so if this happens it happens so
@@ -375,6 +384,11 @@ def clean_config(data):
                     subtasks.append(new_data[field][subtask])
                 del new_data[field][subtask]
             new_data[field] = subtasks
+        if field not in handled_config_fields:
+            external_params.append({"name": field, "val": stringify(data[field])})
+            del new_data[field]
+    if external_params:
+        new_data["params"] = external_params
     return new_data
 
 def clean_carddata_base_fields(card_data):

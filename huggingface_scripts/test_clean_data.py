@@ -69,6 +69,13 @@ class TestCleanData(unittest.TestCase):
                          "{'name': 'Recall', 'type': 'recall', 'value': 0.9069905213}, {'name': "
                          "'F Score', 'type': 'f_score', 'value': 0.9045790251}]",
                          clean_data.fix_model_index(tasks_test)[0]["results"][0]["task"]["metrics"])
+        extra_results_test = [{"name": "distilbert-base-uncased-finetuned-ner", "results":
+            [{"task": {"name": "Token Classification", "type": "token-classification"},
+              "source": {"something_here": "test"}}]}]
+        self.assertEqual([{"name": "distilbert-base-uncased-finetuned-ner", "results":
+            [{"task": {"name": "Token Classification", "type": "token-classification"},
+              "params": [{"name": "source", "val": '{"something_here": "test"}'}]}]}],
+             clean_data.fix_model_index(extra_results_test))
         correct_test = [{"name": "distilbert-base-uncased-finetuned-ner", "results":
             [{"task": {"name": "Token Classification", "type": "token-classification"},
               "datasets": [{"name": "conll2003", "type": "conll2003", "args": "conll2003"}],
@@ -161,21 +168,23 @@ class TestCleanData(unittest.TestCase):
         bad_name_test = [{"accuracy": 0.9018}, {"F-1 score": 0.8956}]
         self.assertNotIn("F-1 score", clean_data.fix_metrics(bad_name_test)[1])
         self.assertNotIn("F-1_score", clean_data.fix_metrics(bad_name_test)[1])
-        self.assertEqual({"name": "f1", "value": 0.8956}, clean_data.fix_metrics(bad_name_test)[1])
+        self.assertEqual({"name": "f1", "value": "0.8956"}, clean_data.fix_metrics(bad_name_test)[1])
         cleanup_name_test = [{"EM": 17}, {"Subset match": 24.5}]
         self.assertNotIn("EM", clean_data.fix_metrics(cleanup_name_test)[0])
-        self.assertEqual({"name": "em", "value": 17}, clean_data.fix_metrics(cleanup_name_test)[0])
+        self.assertEqual({"name": "em", "value": "17"}, clean_data.fix_metrics(cleanup_name_test)[0])
         self.assertNotIn("Subset match", clean_data.fix_metrics(cleanup_name_test)[1])
         self.assertNotIn("subset match", clean_data.fix_metrics(cleanup_name_test)[1])
         self.assertNotIn("Subset_match", clean_data.fix_metrics(cleanup_name_test)[1])
-        self.assertEqual({"name": "subset_match", "value": 24.5}, clean_data.fix_metrics(cleanup_name_test)[1])
+        self.assertEqual({"name": "subset_match", "value": "24.5"}, clean_data.fix_metrics(cleanup_name_test)[1])
         cleanup_lots_test = [{"eval_loss": 0.08608942725107592}, {"eval_accuracy": 0.9925325215819639},
                          {"eval_f1": 0.8805402320715237}, {"average_rank": 0.27430093209054596}]
-        self.assertEqual([{'name': 'eval_loss', 'value': 0.08608942725107592},
-                          {'name': 'eval_accuracy', 'value': 0.9925325215819639},
-                          {'name': 'eval_f1', 'value': 0.8805402320715237},
-                          {'name': 'average_rank', 'value': 0.27430093209054596}],
+        self.assertEqual([{'name': 'eval_loss', 'value': "0.08608942725107592"},
+                          {'name': 'eval_accuracy', 'value': "0.9925325215819639"},
+                          {'name': 'eval_f1', 'value': "0.8805402320715237"},
+                          {'name': 'average_rank', 'value': "0.27430093209054596"}],
                          clean_data.fix_metrics(cleanup_lots_test))
+        nested_val_test = [{"name": "args", "value": {"threshold": 0.46}}]
+        self.assertEqual([{"name": "args", "value": '{"threshold": 0.46}'}], clean_data.fix_metrics(nested_val_test))
 
     def test_fix_widget_data(self):
         nullable_test = {"text": "A courier received 50 packages yesterday and twice as many today.  All of these"
@@ -241,8 +250,8 @@ class TestCleanData(unittest.TestCase):
                                           "example_input": {"petal length (cm)": [4.7, 1.7, 6.9], "petal width (cm)":
                                               [1.2, 0.3, 2.3], "sepal length (cm)": [6.1, 5.7, 7.7], "sepal width (cm)":
                                               [2.8, 3.8, 2.6]}}}
-        self.assertEqual({"sklearn": {"columns": ["sepal length (cm)", "sepal width (cm)", "petal length (cm)",
-                                                      "petal width (cm)"], "environment": ["scikit-learn=1.0.2"],
+        self.assertEqual({"sklearn": {"columns": "['sepal length (cm)', 'sepal width (cm)', 'petal length (cm)', "
+                                                 "'petal width (cm)']", "environment": "['scikit-learn=1.0.2']",
                               "example_input": '{"petal length (cm)": [4.7, 1.7, 6.9], "petal width (cm)": [1.2, 0.3,'
                                                ' 2.3], "sepal length (cm)": [6.1, 5.7, 7.7], "sepal width (cm)": [2.8,'
                                                ' 3.8, 2.6]}'}}, clean_data.clean_config(example_input_test))
@@ -261,6 +270,14 @@ class TestCleanData(unittest.TestCase):
                           "task_specific_params": [{"params": [{"name": "do_sample", "value": "True"},
                                                                {"name": "max_length", "value": "50"}],
                                                     "name": "text_generation"}]}, clean_data.clean_config(param_test))
+        external_param_test = {"architectures": ["BloomForCausalLM"], "model_type": "bloom",
+                               "quantization_config": {"_from_model_config": False, "llm_int8_enable_fp32_cpu_offload":
+                                   False, "llm_int8_skip_modules": None, "llm_int8_threshold": 6, "load_in_8bit": True,
+                                                       "transformers_version": "4.28.0.dev0"}}
+        self.assertEqual({"architectures": ["BloomForCausalLM"], "model_type": "bloom", "params":
+            [{"name": "quantization_config", "val": '{"_from_model_config": false, "llm_int8_enable_fp32_cpu_offload":'
+              ' false, "llm_int8_skip_modules": null, "llm_int8_threshold": 6, "load_in_8bit": true,'
+              ' "transformers_version": "4.28.0.dev0"}'}]}, clean_data.clean_config(external_param_test))
 
     def test_clean_carddata_base_fields(self):
         singular_test = {"language": "en", "tag": "text-classification", "datasets": ["twitter", "movies subtitles"]}
