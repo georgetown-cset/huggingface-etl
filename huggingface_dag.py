@@ -34,7 +34,8 @@ sql_dir = f"sql/{production_dataset}"
 schema_dir = f"{production_dataset}/schemas"
 tmp_dir = f"{production_dataset}/tmp"
 
-default_args = get_default_args()
+default_args = get_default_args(pocs=["Rebecca"])
+default_args["retries"] = 1
 date = datetime.now().strftime("%Y%m%d")
 
 
