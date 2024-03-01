@@ -79,6 +79,18 @@
   },
   {
     "mode": "NULLABLE",
+    "name": "U16_params",
+    "type": "FLOAT",
+    "description": "The parameter count for the U16 tensor type."
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "U32_params",
+    "type": "FLOAT",
+    "description": "The parameter count for the U32 tensor type."
+  },
+  {
+    "mode": "NULLABLE",
     "name": "Q4_params",
     "type": "FLOAT",
     "description": "The parameter count for the Q4 tensor type."

@@ -13,6 +13,8 @@ WITH
     IF(safetensors.parameters.I8 IS NOT NULL, "I8", NULL) AS i8,
     IF(safetensors.parameters.BF16 IS NOT NULL, "BF16", NULL) AS bf16,
     IF(safetensors.parameters.U8 IS NOT NULL, "U8", NULL) AS u8,
+    IF(safetensors.parameters.U16 IS NOT NULL, "U16", NULL) AS u16,
+    IF(safetensors.parameters.U32 IS NOT NULL, "U16", NULL) AS u32,
     IF(safetensors.parameters.Q4 IS NOT NULL, "Q4", NULL) AS q4,
     IF(safetensors.parameters.bool IS NOT NULL, "BOOL", NULL) AS bool_tens,
     safetensors.parameters.F64 as F64_params,
@@ -24,6 +26,8 @@ WITH
     safetensors.parameters.I8 as I8_params,
     safetensors.parameters.BF16 as BF16_params,
     safetensors.parameters.U8 as U8_params,
+    safetensors.parameters.U16 as U16_params,
+    safetensors.parameters.U32 as U32_params,
     safetensors.parameters.Q4 as Q4_params,
     safetensors.parameters.bool as BOOL_params
   FROM
@@ -42,12 +46,14 @@ SELECT
   I8_params,
   BF16_params,
   U8_params,
+  U16_params,
+  U32_params,
   Q4_params,
   BOOL_params
 FROM
   has_tensor_type
 LEFT JOIN
-  UNNEST ([f64, f32, f16, i64, i32, i16, i8, bf16, u8, q4, bool_tens]) tensors
+  UNNEST ([f64, f32, f16, i64, i32, i16, i8, bf16, u8, u16, u32, q4, bool_tens]) tensors
 GROUP BY
   id,
   _id,
@@ -61,5 +67,7 @@ GROUP BY
   I8_params,
   BF16_params,
   U8_params,
+  U16_params,
+  U32_params,
   Q4_params,
   BOOL_params
