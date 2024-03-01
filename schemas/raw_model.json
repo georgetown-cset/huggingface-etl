@@ -1022,6 +1022,16 @@
           },
           {
             "mode": "NULLABLE",
+            "name": "U16",
+            "type": "INTEGER"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "U32",
+            "type": "INTEGER"
+          },
+          {
+            "mode": "NULLABLE",
             "name": "Q4",
             "type": "INTEGER"
           },
