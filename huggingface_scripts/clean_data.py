@@ -277,7 +277,7 @@ def fix_widget_data(data):
 def clean_config(data):
     """
     The config field is a mess of user-defined fields. We need to clean this up if we want to include it.
-    :param data: The config repeated record (a list)
+    :param data: The config record
     :return: The fixed config
     """
     # If config exists but it's empty, leave it
@@ -287,6 +287,9 @@ def clean_config(data):
     handled_config_fields = ["architectures", "model_type", "task_specific_params", "adapter_transformers",
                              "speechbrain", "auto_map", "diffusers", "sklearn"]
     external_params = []
+    # if this is somehow a list or a string instead of a dict, we just aren't going to deal with it; it's broken
+    if type(data) != dict:
+        data = {}
     for field in data:
         if field == "architectures" and data[field] and type(data[field]) != list:
             if "value" in data[field] and type(data[field]["value"]) == list:
