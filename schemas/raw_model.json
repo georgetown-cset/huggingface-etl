@@ -206,6 +206,28 @@
                 "mode": "NULLABLE",
                 "name": "args",
                 "type": "STRING"
+              },
+              {
+                "mode": "NULLABLE",
+                "name": "metrics",
+                "type": "STRING"
+              },
+              {
+                "mode": "REPEATED",
+                "name": "fields",
+                "type": "RECORD",
+                "fields": [
+                  {
+                    "mode": "NULLABLE",
+                    "name": "name",
+                    "type": "STRING"
+                  },
+                  {
+                    "mode": "NULLABLE",
+                    "name": "value",
+                    "type": "STRING"
+                  }
+                ]
               }
             ]
           },
@@ -423,6 +445,11 @@
           {
             "mode": "NULLABLE",
             "name": "vocoder_model_id",
+            "type": "STRING"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "speechbrain_interface",
             "type": "STRING"
           }
         ]
@@ -719,6 +746,23 @@
                     "mode": "NULLABLE",
                     "name": "metrics",
                     "type": "STRING"
+                  },
+                  {
+                    "mode": "REPEATED",
+                    "name": "fields",
+                    "type": "RECORD",
+                    "fields": [
+                      {
+                        "mode": "NULLABLE",
+                        "name": "name",
+                        "type": "STRING"
+                      },
+                      {
+                        "mode": "NULLABLE",
+                        "name": "value",
+                        "type": "STRING"
+                      }
+                    ]
                   }
                 ]
               },
@@ -1039,6 +1083,23 @@
             "mode": "NULLABLE",
             "name": "BOOL",
             "type": "INTEGER"
+          },
+          {
+            "mode": "REPEATED",
+            "name": "extra_parameters",
+            "type": "RECORD",
+            "fields": [
+              {
+                "mode": "NULLABLE",
+                "name": "name",
+                "type": "STRING"
+              },
+              {
+                "mode": "NULLABLE",
+                "name": "value",
+                "type": "INTEGER"
+              }
+            ]
           }
         ]
       },

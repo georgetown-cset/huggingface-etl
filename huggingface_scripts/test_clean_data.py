@@ -26,6 +26,13 @@ class TestCleanData(unittest.TestCase):
         correct_test = ["national library of spain", "spanish", "bne", "capitel", "ner"]
         self.assertEqual(correct_test, clean_data.fix_repeateds(correct_test))
 
+    def test_clean_safetensors(self):
+        extra_val_test = {"parameters": {"I64": 512, "F8_E4M3": 3854}, "total": 109482752}
+        self.assertEqual({"parameters": {"I64": 512, "extra_parameters": [{"name": "F8_E4M3", "value": 3854}]},
+                          "total": 109482752}, clean_data.clean_safetensors(extra_val_test))
+        correct_test = {"parameters": {"I64": 512, "F32": 109482240}, "total": 109482752}
+        self.assertEqual(correct_test, clean_data.clean_safetensors(correct_test))
+
     def test_fix_records(self):
         repeated_test = ["Me llamo francisco javier y vivo en madrid.",
                          "Mi hermano ramón y su mejor amigo luis trabajan en el bsc."]
@@ -76,11 +83,30 @@ class TestCleanData(unittest.TestCase):
             [{"task": {"name": "Token Classification", "type": "token-classification"},
               "params": [{"name": "source", "val": '{"something_here": "test"}'}]}]}],
              clean_data.fix_model_index(extra_results_test))
+        bad_field_test = [{"name": "distilbert-base-uncased-finetuned-ner", "language": "en"}]
+        self.assertEqual([{"name": "distilbert-base-uncased-finetuned-ner"}], clean_data.fix_model_index(bad_field_test))
         correct_test = [{"name": "distilbert-base-uncased-finetuned-ner", "results":
             [{"task": {"name": "Token Classification", "type": "token-classification"},
               "datasets": [{"name": "conll2003", "type": "conll2003", "args": "conll2003"}],
               "metrics": [{"name": "Accuracy", "type": "accuracy", "value": 0.9844313470062116}]}]}]
         self.assertEqual(correct_test, clean_data.fix_model_index(correct_test))
+
+    def test_fix_result_task(self):
+        not_string_test = {"type": "question-answering", "name": ["Question Answering"]}
+        self.assertEqual({"type": "question-answering", "name": "['Question Answering']"},
+                         clean_data.fix_result_task(not_string_test))
+        extra_variables_test = {"type": "question-answering", "name": "Question Answering", "dataset": "questions_v2"}
+        self.assertEqual({"type": "question-answering", "name": "Question Answering",
+                          "fields": [{"name": "dataset", "value": "questions_v2"}]},
+                         clean_data.fix_result_task(extra_variables_test))
+        extra_variables_with_not_string_test = {"type": "question-answering", "name": "Question Answering",
+                                                "dataset": {"name": "questions_v2"}}
+        self.assertEqual({"type": "question-answering", "name": "Question Answering",
+                          "fields": [{"name": "dataset", "value": '{"name": "questions_v2"}'}]},
+                         clean_data.fix_result_task(extra_variables_with_not_string_test))
+        correct_test = {"type": "question-answering", "name": "Question Answering"}
+        self.assertEqual(correct_test, clean_data.fix_result_task(correct_test))
+
 
     def test_fix_result_datasets(self):
         string_test = ["wine-quality"]

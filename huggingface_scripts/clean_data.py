@@ -61,6 +61,7 @@ def fix_model_index(data):
         return data
     results_fields = ["task", "tasks", "dataset", "datasets", "metric", "metrics", "values"]
     new_data = []
+    model_index_fields = ["name", "license", "description", "error", "datasets", "results"]
     if type(data) == dict:
         data = [data]
     for elem in data:
@@ -74,6 +75,10 @@ def fix_model_index(data):
                     new_elem["name"] = list(elem["name"].keys())[0]
                 else:
                     new_elem["name"] = stringify(elem['name'])
+        if "license" in elem:
+            new_elem["license"] = stringify(elem["license"])
+        if "description" in elem:
+            new_elem["description"] = stringify(elem["description"])
         if "datasets" in elem and not elem.get("results"):
             new_elem["results"] = {"datasets": fix_result_datasets(elem["datasets"])}
             del new_elem["datasets"]
@@ -102,6 +107,8 @@ def fix_model_index(data):
                         if "metrics" in new_val["task"]:
                             new_val["task"]["metrics"] = stringify(new_val['task']['metrics'])
                         del new_val["tasks"]
+                    if "task" in val:
+                        new_val["task"] = fix_result_task(val["task"])
                     extra_fields = [i for i in val if i not in results_fields]
                     if extra_fields:
                         results_params = []
@@ -111,8 +118,24 @@ def fix_model_index(data):
                         new_val["params"] = results_params
                     new_vals.append(new_val)
                 new_elem["results"] = new_vals
+        for field in elem:
+            if field not in model_index_fields:
+                del new_elem[field]
         new_data.append(new_elem)
     return new_data
+
+def fix_result_task(task):
+    new_task = {}
+    task_fields = ["name", "type", "args", "metrics"]
+    additional_fields = []
+    for task_subfield in task:
+        if task_subfield in task_fields:
+            new_task[task_subfield] = stringify(task[task_subfield])
+        else:
+            additional_fields.append({"name": task_subfield, "value": stringify(task[task_subfield])})
+    if additional_fields:
+        new_task["fields"] = additional_fields
+    return new_task
 
 def fix_result_datasets(datasets):
     """
@@ -148,6 +171,8 @@ def fix_result_metrics(metrics):
                     metric["value"] = None
                 elif len(metric["value"]) == 1:
                     metric["value"] = metric["value"][0]
+                else:
+                    metric["value"] = stringify(metric["value"])
             elif type(metric["value"]) == dict:
                 metric["value"] = stringify(metric['value'])
         if "args" in metric:
@@ -277,7 +302,7 @@ def fix_widget_data(data):
 def clean_config(data):
     """
     The config field is a mess of user-defined fields. We need to clean this up if we want to include it.
-    :param data: The config repeated record (a list)
+    :param data: The config record
     :return: The fixed config
     """
     # If config exists but it's empty, leave it
@@ -287,6 +312,9 @@ def clean_config(data):
     handled_config_fields = ["architectures", "model_type", "task_specific_params", "adapter_transformers",
                              "speechbrain", "auto_map", "diffusers", "sklearn"]
     external_params = []
+    # if this is somehow a list or a string instead of a dict, we just aren't going to deal with it; it's broken
+    if type(data) != dict:
+        return {}
     for field in data:
         if field == "architectures" and data[field] and type(data[field]) != list:
             if "value" in data[field] and type(data[field]["value"]) == list:
@@ -450,6 +478,22 @@ def fix_co2(co2_field):
             del co2_field[subfield_to_remove]
     return co2_field
 
+def clean_safetensors(safetensors):
+    if not "parameters" in safetensors:
+        return safetensors
+    params = safetensors["parameters"]
+    extra_params = []
+    new_params = {}
+    all_params = ["F64", "F32", "F16", "I64", "I32", "I16", "I8", "BF16", "U8", "U16", "U32", "Q4", "BOOL"]
+    for param in params:
+        if param in all_params:
+            new_params[param] = params[param]
+        else:
+            extra_params.append({"name": param, "value": params[param]})
+    if extra_params:
+        new_params["extra_parameters"] = extra_params
+        safetensors["parameters"] = new_params
+    return safetensors
 
 def fix_data(filename, tag_dict):
     """
@@ -470,6 +514,8 @@ def fix_data(filename, tag_dict):
                     newline["widgetData"] = fix_widget_data(newline["widgetData"])
             if "config" in newline:
                 newline["config"] = clean_config(newline["config"])
+            if "safetensors" in newline:
+                newline["safetensors"] = clean_safetensors(newline["safetensors"])
             if "cardData" in result:
                 if "Tags" in result["cardData"]:
                     if "tags" in result["cardData"]:
