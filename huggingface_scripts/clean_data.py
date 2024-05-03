@@ -80,8 +80,8 @@ def fix_model_index(data):
         if "description" in elem:
             new_elem["description"] = stringify(elem["description"])
         if "datasets" in elem and not elem.get("results"):
-                new_elem["results"] = {"datasets": fix_result_datasets(elem["datasets"])}
-                del new_elem["datasets"]
+            new_elem["results"] = {"datasets": fix_result_datasets(elem["datasets"])}
+            del new_elem["datasets"]
         elif "results" in elem:
             if len(elem["results"]) > 0 and type(elem["results"][0]) != dict:
                 new_elem["results"] = {"values": elem["results"]}
