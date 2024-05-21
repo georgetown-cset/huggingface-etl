@@ -1,9 +1,9 @@
-FROM ubuntu:latest
+FROM python:latest
 
 # Set up system dependencies
 RUN apt -y update
 RUN apt-get -y update
-RUN apt-get install -y build-essential libssl-dev libffi-dev python3-dev python3-pip curl
+RUN apt-get install -y build-essential libssl-dev libffi-dev python3-dev python3-pip curl python3-venv
 
 # Grab files we need to run
 ADD requirements.txt /huggingface/requirements.txt
