@@ -16,10 +16,10 @@ def get_page_data() -> list:
                 json_containing_script = script.text
                 json_data_locations = [m.start() for m in re.finditer(r'"data":', json_containing_script)]
                 # if this assertion fails something about the code structure may have changed and we want to take a look
-                assert len(json_data_locations) == 15
+                assert len(json_data_locations) == 12
                 # we know from the structure of this file that the interesting data is in the second data entry
                 # we also want to strip the "data" field
-                json_str = json_containing_script[json_data_locations[3] + 7:]
+                json_str = json_containing_script[json_data_locations[0] + 7:]
                 # the end of the data section will look like this
                 # there will be multiple of these but find() will get us the first one
                 end_mark = json_str.find("]]")

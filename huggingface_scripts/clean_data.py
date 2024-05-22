@@ -164,6 +164,9 @@ def fix_result_metrics(metrics):
     """
     plurals = {"types": "type",
                "values": "value"}
+    misspellings = {"veriefied": "verified"}
+    all_fields = {"name", "type", "value", "config", "verified", "verify_token", "args", "lower_is_better",
+                  "num_train_epochs", "learning_rate", "description"}
     for metric in metrics:
         if "value" in metric:
             if type(metric["value"]) == list:
@@ -191,6 +194,14 @@ def fix_result_metrics(metrics):
                 if plurals[field_name] not in metric:
                     metric[plurals[field_name]] = ", ".join([stringify(elm) for elm in metric[field_name]])
                 del metric[field_name]
+        for field_name in misspellings:
+            if field_name in metric:
+                if misspellings[field_name] not in metric:
+                    metric[misspellings[field_name]] = metric[field_name]
+                del metric[field_name]
+        # if metric has some field not in our list we're just going to cut it; it's probably not important
+        for bad_field in (metric.keys() - all_fields):
+            del metric[bad_field]
     return metrics
 
 def read_tag_data(tag_file):
