@@ -67,6 +67,12 @@
   },
   {
     "mode": "NULLABLE",
+    "name": "date",
+    "type": "TIMESTAMP",
+    "description": "Date timestamp."
+  },
+  {
+    "mode": "NULLABLE",
     "name": "hub",
     "type": "FLOAT",
     "description": "Model hub."

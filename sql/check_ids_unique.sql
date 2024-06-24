@@ -1,4 +1,4 @@
 SELECT
-  COUNT(_id) = COUNT(DISTINCT _id)
+  COUNT(id) = COUNT(DISTINCT id)
 FROM
   staging_huggingface.raw_model

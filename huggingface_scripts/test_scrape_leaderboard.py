@@ -9,7 +9,7 @@ class TestScrapeLeaderboard(unittest.TestCase):
         self.assertGreaterEqual(len(leaderboard_data), 500)
         for elem in leaderboard_data:
             self.assertEqual(type(elem), list)
-            self.assertEqual(len(elem), 22)
+            self.assertEqual(len(elem), 23)
 
 
     def test_parse_leaderboard_data(self):
@@ -19,7 +19,7 @@ class TestScrapeLeaderboard(unittest.TestCase):
         self.assertEqual(len(leaderboard_data), len(leaderboard))
         for elem in leaderboard:
             self.assertEqual(type(elem), dict)
-            self.assertEqual(len(elem), 22)
+            self.assertEqual(len(elem), 23)
             self.assertIn("id", elem)
 
 if __name__ == '__main__':
