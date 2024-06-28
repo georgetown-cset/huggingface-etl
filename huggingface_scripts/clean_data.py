@@ -253,10 +253,10 @@ def fix_metrics(data):
         else:
             return [{"value": data}]
     if type(data) == list:
-        # if there's just a string or int or float sitting in the first element in metrics
-        if type(data[0]) != dict:
-            new_data = [{"name" if type(data[0]) == str else "value": stringify(element)}
-                        for element in data if element]
+        # if there's just a string or int or float sitting in any element of the list
+        # this might not be consistent across the list, but stringifying should clean this up
+        if any(type(i) != dict for i in data):
+            new_data = [{"value": stringify(element)} for element in data if element]
         else:
             # normalize some of the names so they're more consistent
             temp_new_data = [{"_".join(i.split()).replace("F-1_score", "f1").lower(): stringify(j)

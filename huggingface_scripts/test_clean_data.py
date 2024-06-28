@@ -190,7 +190,7 @@ class TestCleanData(unittest.TestCase):
         string_test = "wer"
         self.assertEqual([{"name": "wer"}], clean_data.fix_metrics(string_test))
         list_test = ["accuracy"]
-        self.assertEqual([{"name": "accuracy"}], clean_data.fix_metrics(list_test))
+        self.assertEqual([{"value": "accuracy"}], clean_data.fix_metrics(list_test))
         bad_name_test = [{"accuracy": 0.9018}, {"F-1 score": 0.8956}]
         self.assertNotIn("F-1 score", clean_data.fix_metrics(bad_name_test)[1])
         self.assertNotIn("F-1_score", clean_data.fix_metrics(bad_name_test)[1])
