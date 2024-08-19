@@ -16,8 +16,8 @@ To refresh the docker container (which you must do if you change any of the pyth
 
 ```
 docker build -t huggingface .
-docker tag huggingface us.gcr.io/gcp-cset-projects/huggingface
-docker push us.gcr.io/gcp-cset-projects/huggingface
+docker tag huggingface us-docker.pkg.dev/gcp-cset-projects/us.gcr.io/huggingface
+docker push us-docker.pkg.dev/gcp-cset-projects/us.gcr.io/huggingface
 ```
 
 To redeploy the airflow pipeline, which you must do if any of the schemas, the SQL, or the airflow DAG changes, run
