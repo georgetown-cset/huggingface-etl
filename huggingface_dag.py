@@ -25,6 +25,7 @@ from dataloader.airflow_utils.defaults import (
     get_post_success,
 )
 from dataloader.scripts.populate_documentation import update_table_descriptions
+from kubernetes.client import models as k8s
 
 bucket = DATA_BUCKET
 production_dataset = "huggingface"
@@ -92,7 +93,9 @@ with dag:
                     }]
                 }
             }
-        }
+        },
+        tolerations=[k8s.V1Toleration(key="huggingface", operator="Equal", value="true")],
+        annotations={"cluster-autoscaler.kubernetes.io/safe-to-evict": "true"},
     )
 
     # clean the huggingface data
@@ -130,7 +133,9 @@ with dag:
                     }]
                 }
             }
-        }
+        },
+        tolerations=[k8s.V1Toleration(key="huggingface", operator="Equal", value="true")],
+        annotations={"cluster-autoscaler.kubernetes.io/safe-to-evict": "true"},
     )
 
     # load the cleaned data into one big table
@@ -193,7 +198,9 @@ with dag:
                     }]
                 }
             }
-        }
+        },
+        tolerations=[k8s.V1Toleration(key="huggingface", operator="Equal", value="true")],
+        annotations={"cluster-autoscaler.kubernetes.io/safe-to-evict": "true"},
     )
 
     # load the leaderboard data
