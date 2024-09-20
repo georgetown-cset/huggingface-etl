@@ -31,45 +31,75 @@
   },
   {
     "mode": "NULLABLE",
-    "name": "ARC",
+    "name": "IFEval",
     "type": "FLOAT",
-    "description": "Model performance on ARC metric."
+    "description": "Model performance on IFEval metric."
   },
   {
     "mode": "NULLABLE",
-    "name": "HellaSwag",
+    "name": "IFEval_Raw",
     "type": "FLOAT",
-    "description": "Model performance on HellaSwag metric."
+    "description": "Model performance on IFEval Raw metric."
   },
   {
     "mode": "NULLABLE",
-    "name": "MMLU",
+    "name": "MATH_Lvl_5",
     "type": "FLOAT",
-    "description": "Model performance on MMLU metric."
+    "description": "Model performance on MATH Lvl 5 metric."
   },
   {
     "mode": "NULLABLE",
-    "name": "TruthfulQA",
+    "name": "MATH_Lvl_5_Raw",
     "type": "FLOAT",
-    "description": "Model performance on TruthfulQA metric."
+    "description": "Model performance on MATH Lvl 5 Raw metric."
   },
   {
     "mode": "NULLABLE",
-    "name": "Winogrande",
+    "name": "GPQA",
     "type": "FLOAT",
-    "description": "Model performance on Winogrande metric."
+    "description": "Model performance on GPQA metric."
   },
   {
     "mode": "NULLABLE",
-    "name": "GSM8K",
+    "name": "GPQA_Raw",
     "type": "FLOAT",
-    "description": "Model performance on GSM8K metric."
+    "description": "Model performance on GPQA Raw metric."
   },
   {
     "mode": "NULLABLE",
-    "name": "date",
-    "type": "TIMESTAMP",
-    "description": "Date timestamp."
+    "name": "MUSR",
+    "type": "FLOAT",
+    "description": "Model performance on MUSR metric."
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "MUSR_Raw",
+    "type": "FLOAT",
+    "description": "Model performance on MUSR Raw metric."
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "MMLU-PRO",
+    "type": "FLOAT",
+    "description": "Model performance on MMLU-PRO metric."
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "MMLU-PRO_Raw",
+    "type": "FLOAT",
+    "description": "Model performance on MMLU-PRO Raw metric."
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "submission_date",
+    "type": "DATE",
+    "description": "Submission date."
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "upload_to_hub_date",
+    "type": "DATE",
+    "description": "Upload to hub date."
   },
   {
     "mode": "NULLABLE",
@@ -121,15 +151,39 @@
   },
   {
     "mode": "NULLABLE",
-    "name": "merged",
+    "name": "not_merged",
     "type": "BOOLEAN",
-    "description": "Whether the model has been merged or fused."
+    "description": "Whether the model has *not* been merged or fused."
   },
   {
     "mode": "NULLABLE",
     "name": "mixture_of_experts",
     "type": "BOOLEAN",
     "description": "Whether the model is a Mixture of Experts (MoE) model."
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "chat_template",
+    "type": "BOOLEAN",
+    "description": "Whether the model is a chat template model."
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "generation",
+    "type": "FLOAT",
+    "description": "What generation the model is."
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "base_model",
+    "type": "STRING",
+    "description": "What base model the model is derived from."
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "maintainers_highlight",
+    "type": "BOOLEAN",
+    "description": "Whether the model is a maintainer's highlight."
   },
   {
     "mode": "NULLABLE",
