@@ -518,6 +518,11 @@ def fix_data(filename, tag_dict):
             result = json.loads(line)
             # print(i, result["id"])
             newline = copy.deepcopy(result)
+            bools = ["private", "disabled", "gated"]
+            for bool_var in bools:
+                if bool_var in newline:
+                    if type(newline[bool_var]) != bool:
+                        del newline[bool_var]
             if "model-index" in newline:
                 newline["model_index"] = fix_model_index(newline["model-index"])
                 del newline["model-index"]
