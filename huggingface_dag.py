@@ -96,6 +96,7 @@ with dag:
         },
         tolerations=[k8s.V1Toleration(key="huggingface", operator="Equal", value="true")],
         annotations={"cluster-autoscaler.kubernetes.io/safe-to-evict": "true"},
+        on_finish_action="delete_pod",
     )
 
     # clean the huggingface data
@@ -136,6 +137,7 @@ with dag:
         },
         tolerations=[k8s.V1Toleration(key="huggingface", operator="Equal", value="true")],
         annotations={"cluster-autoscaler.kubernetes.io/safe-to-evict": "true"},
+        on_finish_action="delete_pod",
     )
 
     # load the cleaned data into one big table
@@ -201,6 +203,7 @@ with dag:
         },
         tolerations=[k8s.V1Toleration(key="huggingface", operator="Equal", value="true")],
         annotations={"cluster-autoscaler.kubernetes.io/safe-to-evict": "true"},
+        on_finish_action="delete_pod",
     )
 
     # load the leaderboard data
