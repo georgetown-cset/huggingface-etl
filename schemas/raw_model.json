@@ -275,6 +275,28 @@
                 "mode": "NULLABLE",
                 "name": "WER",
                 "type": "STRING"
+              },
+              {
+                "mode": "NULLABLE",
+                "name": "link",
+                "type": "STRING"
+              },
+              {
+                "mode": "REPEATED",
+                "name": "params",
+                "type": "RECORD",
+                "fields": [
+                  {
+                    "mode": "NULLABLE",
+                    "name": "name",
+                    "type": "STRING"
+                  },
+                  {
+                    "mode": "NULLABLE",
+                    "name": "value",
+                    "type": "STRING"
+                  }
+                ]
               }
             ]
           },
@@ -815,6 +837,28 @@
                     "mode": "NULLABLE",
                     "name": "WER",
                     "type": "STRING"
+                  },
+                  {
+                    "mode": "NULLABLE",
+                    "name": "link",
+                    "type": "STRING"
+                  },
+                  {
+                    "mode": "REPEATED",
+                    "name": "params",
+                    "type": "RECORD",
+                    "fields": [
+                      {
+                        "mode": "NULLABLE",
+                        "name": "name",
+                        "type": "STRING"
+                      },
+                      {
+                        "mode": "NULLABLE",
+                        "name": "value",
+                        "type": "STRING"
+                      }
+                    ]
                   }
                 ]
               },
@@ -1111,6 +1155,53 @@
     ]
   },
   {
+    "mode": "NULLABLE",
+    "name": "gguf",
+    "type": "RECORD",
+    "fields": [
+      {
+        "mode": "NULLABLE",
+        "name": "total",
+        "type": "INTEGER"
+      },
+      {
+        "mode": "NULLABLE",
+        "name": "architecture",
+        "type": "STRING"
+      },
+      {
+        "mode": "NULLABLE",
+        "name": "context_length",
+        "type": "INTEGER"
+      },
+      {
+        "mode": "NULLABLE",
+        "name": "chat_template",
+        "type": "STRING"
+      },
+      {
+        "mode": "NULLABLE",
+        "name": "quantize_imatrix_file",
+        "type": "STRING"
+      },
+      {
+        "mode": "NULLABLE",
+        "name": "causal",
+        "type": "BOOLEAN"
+      },
+      {
+        "mode": "NULLABLE",
+        "name": "bos_token",
+        "type": "STRING"
+      },
+      {
+        "mode": "NULLABLE",
+        "name": "eos_token",
+        "type": "STRING"
+      }
+    ]
+  },
+  {
     "mode": "REPEATED",
     "name": "siblings",
     "type": "RECORD",
@@ -1121,6 +1212,16 @@
         "type": "STRING"
       }
     ]
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "usedStorage",
+    "type": "INTEGER"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "inference",
+    "type": "STRING"
   },
   {
     "mode": "NULLABLE",

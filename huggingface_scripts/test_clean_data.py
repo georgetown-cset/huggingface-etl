@@ -120,6 +120,11 @@ class TestCleanData(unittest.TestCase):
         self.assertEqual([{"name": "LibriSpeech (other)", "type": "librispeech_asr", "config": "other",
                            "split": "test", "args": '{"language": "en", "other": "something"}'}],
                          clean_data.fix_result_datasets(args_multiple_test))
+        extra_field_test = [{"name": "LibriSpeech (other)", "type": "librispeech_asr", "config": "other",
+                           "split": "test", "testfield": "result"}]
+        self.assertEqual([{"name": "LibriSpeech (other)", "type": "librispeech_asr", "config": "other",
+                           "split": "test", "params": [{"name": "testfield", "value": "result"}]}],
+                         clean_data.fix_result_datasets(extra_field_test))
         correct_test = [{"name": "custom", "type": "custom", "args": "ben"}]
         self.assertEqual(correct_test, clean_data.fix_result_datasets(correct_test))
 
@@ -194,6 +199,7 @@ class TestCleanData(unittest.TestCase):
         bad_name_test = [{"accuracy": 0.9018}, {"F-1 score": 0.8956}]
         self.assertNotIn("F-1 score", clean_data.fix_metrics(bad_name_test)[1])
         self.assertNotIn("F-1_score", clean_data.fix_metrics(bad_name_test)[1])
+        self.assertEqual({"name": "accuracy", "value": "0.9018"}, clean_data.fix_metrics(bad_name_test)[0])
         self.assertEqual({"name": "f1", "value": "0.8956"}, clean_data.fix_metrics(bad_name_test)[1])
         cleanup_name_test = [{"EM": 17}, {"Subset match": 24.5}]
         self.assertNotIn("EM", clean_data.fix_metrics(cleanup_name_test)[0])
@@ -210,6 +216,11 @@ class TestCleanData(unittest.TestCase):
                           {'name': 'average_rank', 'value': "0.27430093209054596"}],
                          clean_data.fix_metrics(cleanup_lots_test))
         nested_val_test = [{"name": "args", "value": {"threshold": 0.46}}]
+        just_a_dict_test = {"accuracy": "0.98", "precision": "0.98", "recall": "0.98"}
+        self.assertEqual([{"name": "accuracy", "value": "0.98"},
+                          {"name": "precision", "value": "0.98"},
+                          {"name": "recall", "value": "0.98"}],
+                         clean_data.fix_metrics(just_a_dict_test))
         self.assertEqual([{"name": "args", "value": '{"threshold": 0.46}'}], clean_data.fix_metrics(nested_val_test))
 
     def test_fix_widget_data(self):
@@ -332,6 +343,16 @@ class TestCleanData(unittest.TestCase):
         non_core_co2 = {"emissions": 5.323053488245721, "fake_field": 293}
         self.assertEqual({"emissions": 5.323053488245721, "params": [{"name": "fake_field", "value": 293}]},
                          clean_data.fix_co2(non_core_co2))
+
+    def test_clean_gguf(self):
+        actually_a_list_test = [{"total": 671026419200, "architecture": "deepseek2"},
+                                {"total": 6710264192, "architecture": "deepseek"}]
+        self.assertEqual({}, clean_data.clean_gguf(actually_a_list_test))
+        bad_field_test = {"total": 671026419200, "architecture": "deepseek2", "fakefield": "testdata"}
+        self.assertEqual({"total": 671026419200, "architecture": "deepseek2"}, clean_data.clean_gguf(bad_field_test))
+        correct_test = {"total": 671026419200, "architecture": "deepseek2", "context_length": 163840,
+                                "chat_template": "{% if not add_generation_", "eos_token": "<｜end▁of▁sentence｜>"}
+        self.assertEqual(correct_test, clean_data.clean_gguf(correct_test))
 
 if __name__ == '__main__':
     unittest.main()
