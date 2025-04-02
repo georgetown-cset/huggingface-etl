@@ -83,12 +83,16 @@ def fix_model_index(data):
             new_elem["results"] = {"datasets": fix_result_datasets(elem["datasets"])}
             del new_elem["datasets"]
         elif "results" in elem:
-            if len(elem["results"]) > 0 and type(elem["results"][0]) != dict:
+            if len(elem["results"]) > 0 and type(elem["results"]) not in [set, dict] \
+                    and type(elem["results"][0]) != dict:
                 new_elem["results"] = {"values": elem["results"]}
             else:
                 new_vals = []
                 for val in elem["results"]:
                     new_val = copy.deepcopy(val)
+                    if type(new_val) == "str":
+                        # we just don't want to include this; it's nonsense
+                        continue
                     if "dataset" in val:
                         new_val["datasets"] = fix_result_datasets([val["dataset"]])
                         del new_val["dataset"]
@@ -107,9 +111,9 @@ def fix_model_index(data):
                         if "metrics" in new_val["task"]:
                             new_val["task"]["metrics"] = stringify(new_val['task']['metrics'])
                         del new_val["tasks"]
-                    if "task" in val:
+                    if type(val) != str and "task" in val:
                         new_val["task"] = fix_result_task(val["task"])
-                    extra_fields = [i for i in val if i not in results_fields]
+                    extra_fields = [i for i in val if type(val) != str and i not in results_fields]
                     if extra_fields:
                         results_params = []
                         for field_name in extra_fields:
@@ -127,6 +131,9 @@ def fix_model_index(data):
 def fix_result_task(task):
     new_task = {}
     task_fields = ["name", "type", "args", "metrics"]
+    if type(task) != dict:
+        new_task = {"name": stringify(task)}
+        return new_task
     additional_fields = []
     for task_subfield in task:
         if task_subfield in task_fields:
@@ -143,17 +150,28 @@ def fix_result_datasets(datasets):
     :param datasets: The datasets field, which should be a repeated (list)
     :return: The fixed datasets field
     """
-    for dataset in datasets:
+    dataset_fields = ["name", "type", "config", "split", "revision", "args", "url", "WER", "link"]
+    for i, dataset in enumerate(datasets):
         # if we have strings instead of records in our datasets, shortcut this whole thing
         # and just return a new version with records
         if type(dataset) == str:
             return [{"name" : dataset} for dataset in datasets]
+
         if "args" in dataset:
             if type(dataset["args"]) == dict:
                 if len(dataset["args"]) == 1:
                     dataset["args"] = [i for i in dataset["args"].values()][0]
                 else:
                     dataset["args"] = stringify(dataset['args'])
+        new_dataset = copy.deepcopy(dataset)
+        params = []
+        for field in dataset:
+            if field not in dataset_fields:
+                params.append({"name": field, "value": stringify(dataset[field])})
+                del new_dataset[field]
+        if params:
+            new_dataset["params"] = params
+        datasets[i] = new_dataset
     return datasets
 
 def fix_result_metrics(metrics):
@@ -252,6 +270,8 @@ def fix_metrics(data):
             return [{"name": data}]
         else:
             return [{"value": data}]
+    if type(data) == dict:
+        data = [data]
     if type(data) == list:
         # if there's just a string or int or float sitting in any element of the list
         # this might not be consistent across the list, but stringifying should clean this up
@@ -506,6 +526,26 @@ def clean_safetensors(safetensors):
         safetensors["parameters"] = new_params
     return safetensors
 
+def clean_gguf(gguf):
+    """
+    Clean the gguf field in Hugging Face
+    :param gguf: the field, which should be a dict
+    :return: the cleaned field
+    """
+    # We're not going to deal with the possibility that gguf is multiple different types;
+    # we just don't care about it enough
+    if type(gguf) != dict:
+        gguf = {}
+    # these are the known fields within gguf
+    # again, if we encounter a new one, we're just going to drop it; we simply don't really care
+    gguf_fields = ["total", "architecture", "context_length", "chat_template", "quantize_imatrix_file", "causal"
+                   "bos_token", "eos_token"]
+    new_gguf = copy.deepcopy(gguf)
+    for field in gguf:
+        if field not in gguf_fields:
+            del new_gguf[field]
+    return new_gguf
+
 def fix_data(filename, tag_dict):
     """
     The primary function for cleaning all the data
@@ -532,6 +572,8 @@ def fix_data(filename, tag_dict):
                 newline["config"] = clean_config(newline["config"])
             if "safetensors" in newline:
                 newline["safetensors"] = clean_safetensors(newline["safetensors"])
+            if "gguf" in newline:
+                newline["gguf"] = clean_gguf(newline["gguf"])
             if "cardData" in result:
                 if "Tags" in result["cardData"]:
                     if "tags" in result["cardData"]:
